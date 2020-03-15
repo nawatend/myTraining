@@ -1,0 +1,23 @@
+.bars
+    display: flex
+    justify-content: flex-start
+    align-items: center
+    .bars__label
+        @include label
+        margin-right: $ws-sm
+        width: 50px
+    .bars__bars
+        display: flex
+        justify-content: flex-start
+        .bar
+            margin: 0 1.6px
+            width: 4px
+            height: 16px
+            background-color: $not-active-color
+            border-radius: 50px
+        .bar__covered
+            background-color: $main-color
+    
+    
+
+    
