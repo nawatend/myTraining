@@ -1,5 +1,5 @@
 import Title from './Title'
-import Subtitle from './SubTitle'
+import SubTitle from './SubTitle'
 import Paragraph from './Paragraph'
 
-export { Title, Subtitle, Paragraph }
+export { Title, SubTitle, Paragraph }

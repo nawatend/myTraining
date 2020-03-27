@@ -11,11 +11,11 @@ import { Link } from 'react-router-dom'
 
 export default function WorkoutCard() {
     return (
-        <Card component={Link} to="/today" className="card__workout">
+        <Card component={Link} to="/today/02144" className="card__workout">
             <CardActionArea className="card__workout__ActionArea">
                 <CardMedia
                     className="card__workout__media"
-                    image="/images/bag_squad.jpg"
+                    image={`${process.env.PUBLIC_URL}/images/bag_squad.jpg`}
                     title="bag squad"
                 />
                 <CardContent className="card__workout__content">

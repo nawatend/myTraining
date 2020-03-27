@@ -9,7 +9,7 @@ import HorizontalContainer from '../components/HorizontalContainer'
 import { Paper, List } from '@material-ui/core'
 import Timer from '../components/Timer'
 import Bars from '../components/Bars'
-import { Title, Subtitle } from '../components/texts'
+import { Title, SubTitle } from '../components/texts'
 
 let HomePage = () => {
 
@@ -20,14 +20,14 @@ let HomePage = () => {
     return (
         <div className="home">
             
-            <Subtitle text="Choose today's session" />
+            <SubTitle text="Choose today's session" />
             <HorizontalContainer>
                 <WorkoutCard />
                 <WorkoutCard />
                 <WorkoutCard />
             </HorizontalContainer>
 
-            <Subtitle text="Completed sessions" />
+            <SubTitle text="Completed sessions" />
             <HorizontalContainer>
                 <WorkoutCard />
                 <WorkoutCard />

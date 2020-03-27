@@ -2,30 +2,64 @@ import React, { useEffect, useState } from 'react'
 import BaseLayout from '../layouts/base';
 import ExerciseCard from '../components/ExerciseCard'
 import Timer from '../components/Timer'
-import { Title, Subtitle } from '../components/texts'
+import { Title, SubTitle } from '../components/texts'
 import Return from '../components/Return'
+import Feedback from '../components/Feedback'
+
+let TodayExercisesPage = (props) => {
 
 
-let TodayExercisesPage = () => {
+    let testDatas = [{
+        title: "1 0titltes",
+        imagePath: "/images/test.jpg",
+        videoPath: "/videos/test.mp4",
+        cardioLevel: "1",
+        muscleLevel: "4",
+        type: "reps",
+        mainInfo: { sets: 3, reps: 8, kg: 16 },
+        description: "ttest descirption is fun but leuk lksdflk sdn dlsknfl ksdlfkj j jds flis  klmlk"
+    }
+        , {
+        title: "2 Title",
+        imagePath: "/images/test.jpg",
+        videoPath: "/videos/test.mp4",
+        cardioLevel: "4",
+        muscleLevel: "2",
+        type: "time",
+        mainInfo: { time: 20 },
+        description: "ttest descirption is fun but leuk lksdflk sdn dlsknfl ksdlfkj j jds flis  klmlk"
+    }, {
+        title: "2 Title",
+        imagePath: "/images/test.jpg",
+        videoPath: "/videos/test.mp4",
+        cardioLevel: "4",
+        muscleLevel: "2", type: "time",
+        mainInfo: { time: 20 },
+        description: "ttest descirption is fun but leuk lksdflk sdn dlsknfl ksdlfkj j jds flis  klmlk"
+    }]
+
+    const [isRated, setIsRated] = useState(false)
+    const [almostDone, setAlmostDone] = useState(false)
 
     useEffect(() => {
+
+        if (testDatas.length === 1 || testDatas.length === 0) {
+            setAlmostDone(true)
+        }
 
     }, [])
 
     return (
         <div className="today__exercises">
-            <Return />
-            <div className="today__timer">
+            {/* <div className="today__timer">
                 <Timer />
-            </div>
-            <Subtitle text="Today's exercises" />
-            <ExerciseCard />
-            <ExerciseCard />
-            <ExerciseCard />
-
-            <Subtitle text="Completed exercises" />
-            <ExerciseCard />
-            <ExerciseCard />
+            </div> */}
+            <SubTitle text="Today's exercises" />
+            {testDatas.map((data, i) => (<ExerciseCard key={i} data={data} />))}
+            {almostDone &&
+                <Feedback />
+            }
+            <SubTitle text="Completed exercises" />
         </div>
     )
 }

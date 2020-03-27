@@ -12,13 +12,13 @@ let router = () => {
     return (
         <Router basename={process.env.PUBLIC_URL}>
             <Switch>
-                <Route exact path="/" component={HomePage} />
-                <Route exact path="/exercisedetail/:exerciseId" component={ExerciseDetailPage} />
+                <Route exact path="/" component={HomePage} title={"Today!"} />
+                <Route exact path="/exercisedetail/:exerciseId" component={ExerciseDetailPage} title={"Today!"} />
 
-                <Route exact path="/today" component={TodayExercisesPage} />
-                <Route exact path="/workouts" component={WorkoutsPage} />
-                <Route exact path="/progress" component={ProgressPage} />
-                <Route exact path="/profile" component={ProfilePage} />
+                <Route exact path="/today/:workoutsessionId" component={TodayExercisesPage} title={"Today!"} />
+                <Route exact path="/workouts" component={WorkoutsPage} title={"Today!"} />
+                <Route exact path="/progress" component={ProgressPage} title={"Today!"} />
+                <Route exact path="/profile" component={ProfilePage} title={"Today!"} />
             </Switch>
         </Router>
     )

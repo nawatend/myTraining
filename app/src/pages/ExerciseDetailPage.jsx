@@ -3,6 +3,8 @@ import CardMedia from '@material-ui/core/CardMedia';
 import BaseLayout from '../layouts/base';
 import Button from '../components/Button'
 import ExerciseMainInfo from '../components/ExerciseMainInfo'
+import Nav from '../components/Nav'
+import Return from '../components/Return'
 
 let ExerciseDetailPage = () => {
 
@@ -28,33 +30,40 @@ let ExerciseDetailPage = () => {
     const [exerciseInfo, setExerciseInfo] = useState(exerciseDetailTime)
 
     useEffect(() => {
-    
+
 
     }, [])
     return (
-        <div className="exercise__detail">
-            <div className="exercise__detail__media">
-                <CardMedia
-                    className="exercise__detail__media--video"
-                    image="/images/bag_squad.jpg"
-                    title="Paella dish"
-                />
-            </div>
-            <div className="exercise__detail__info">
-                <div className="exercise__detail__info__header">
-                    <div className="exercise__detail__info__header--title">{exerciseInfo.title}</div>
-                    <div className="exercise__detail__info__header--button">
-                        <Button text="DONE" />
+
+
+                <div className="exercise__detail">
+
+                    <div className="exercise__detail__media">
+
+                        <CardMedia
+                            component="video"
+                            controls
+                            className="exercise__detail__media--video"
+                            src={`${process.env.PUBLIC_URL}/videos/test.mp4`}
+                            title="Exercise Video"
+                            aspectratio="wide"
+                        />
+                    </div>
+                    <div className="exercise__detail__info">
+                        <div className="exercise__detail__info__header">
+                            <div className="exercise__detail__info__header--title">{exerciseInfo.title}</div>
+                            <div className="exercise__detail__info__header--button">
+                                <Button text="DONE" />
+                            </div>
+                        </div>
+
+                        <ExerciseMainInfo mainInfo={exerciseInfo} />
+                        <div className="exercise__detail__info__description">
+                            {exerciseInfo.description}
+                        </div>
+
                     </div>
                 </div>
-
-                <ExerciseMainInfo mainInfo={exerciseInfo} />
-                <div className="exercise__detail__info__description">
-                    {exerciseInfo.description}
-                </div>
-
-            </div>
-        </div>
     )
 }
 export default BaseLayout(ExerciseDetailPage)

@@ -28,7 +28,7 @@ let ProgressPage = () => {
 
     const classes = useStyles();
 
-    const [exerciseId, setExerciseId] = useState(0)
+    const [exerciseId, setExerciseId] = useState(10)
     const [chartType, setChartType] = useState("day")
     useEffect(() => {
 
@@ -49,15 +49,17 @@ let ProgressPage = () => {
                 <Select
                     labelId="demo-simple-select-filled-label"
                     id="demo-simple-select-filled"
-                    value={exerciseId}
+                    value={exerciseId ? exerciseId : 10}
+
                     onChange={handleChange}
                 >
                     <MenuItem value="">
                         <em>None</em>
                     </MenuItem>
-                    <MenuItem value={10}>Ten</MenuItem>
-                    <MenuItem value={20}>Twenty</MenuItem>
-                    <MenuItem value={30}>Thirty</MenuItem>
+                    
+                    <MenuItem value={10}>Squat</MenuItem>
+                    <MenuItem value={20}>Running</MenuItem>
+                    <MenuItem value={30}>Benchpress</MenuItem>
                 </Select>
             </FormControl>
 

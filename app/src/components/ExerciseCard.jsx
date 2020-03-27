@@ -12,8 +12,10 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import { red } from '@material-ui/core/colors';
 import CircularProgress from '@material-ui/core/CircularProgress'
-
 import { MdExpandMore } from "react-icons/md";
+
+import { Link } from 'react-router-dom'
+
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -38,7 +40,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export default function ExerciseCard() {
+export default function ExerciseCard(props) {
 
     const classes = useStyles();
     const [expanded, setExpanded] = React.useState(false);
@@ -51,6 +53,7 @@ export default function ExerciseCard() {
 
 
     useEffect(() => {
+
         let progress = () => {
             setCompleted(prevCompleted => (prevCompleted >= 100 ? 0 : prevCompleted + 10));
         }
@@ -64,20 +67,20 @@ export default function ExerciseCard() {
 
     return (
         <Card className="card__exercise">
-            <div className="card__exercise__main">
+            <Link to="/exercisedetail/1" className="card__exercise__main">
                 <CardMedia
                     className="card__exercise--image"
-                    image="/images/bag_squad.jpg"
-                    title="Paella dish"
+                    image={`${process.env.PUBLIC_URL}/images/bag_squad.jpg`}
+                    title={props.data.title}
                 />
                 <CardHeader
                     className="card__exercise--title"
-                    title="Chorizo Paella"
-                    subheader="September 14, 2016"
+                    title={props.data.title}
+                    subheader={(props.data.type === "time") ? `${props.data.mainInfo.time} min` : `${props.data.mainInfo.reps} reps`}
                 >
                     ggg
             </CardHeader>
-            </div>
+            </Link>
 
             <div className="card__exercise__expand">
                 <CircularProgress className="exercise__progress" variant="static" value={80} />

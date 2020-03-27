@@ -5,12 +5,14 @@ import Header from '../components/Header'
 
 const BaseLayout = (Page) => {
 
+
     return () => (
         <div className="App main__app">
 
-            <Header />
+
+            <Header title={"TEst"} />
             <main className="main__content">
-                
+
                 <Page />
             </main>
             <Nav />
