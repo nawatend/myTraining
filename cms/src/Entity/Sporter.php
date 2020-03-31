@@ -60,9 +60,9 @@ class Sporter
     private $height;
 
     /**
-     * @ORM\Column(type="array", nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      */
-    private $goals = [];
+    private $goals;
 
     public function __construct()
     {
@@ -214,12 +214,12 @@ class Sporter
         return $this;
     }
 
-    public function getGoals(): ?array
+    public function getGoals(): ?string
     {
         return $this->goals;
     }
 
-    public function setGoals(?array $goals): self
+    public function setGoals(?string $goals): self
     {
         $this->goals = $goals;
 

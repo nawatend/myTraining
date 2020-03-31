@@ -15,7 +15,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import { MdExpandMore } from "react-icons/md";
 
 import { Link } from 'react-router-dom'
-
+import Button from '../components/Button'
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -81,10 +81,12 @@ export default function ExerciseCard(props) {
                     ggg
             </CardHeader>
             </Link>
-
             <div className="card__exercise__expand">
-                <CircularProgress className="exercise__progress" variant="static" value={80} />
-                <CardActions className="card__exercise--expand" disableSpacing>
+                {props.data.done &&
+                    <CircularProgress className="exercise__progress" variant="static" value={80} />
+                }
+                {/* <CircularProgress className="exercise__progress" variant="static" value={80} /> */}
+                {/* <CardActions className="card__exercise--expand" disableSpacing>
                     <IconButton
                         className={clsx(classes.expand, {
                             [classes.expandOpen]: expanded,
@@ -95,7 +97,15 @@ export default function ExerciseCard(props) {
                     >
                         <MdExpandMore />
                     </IconButton>
-                </CardActions>
+
+                </CardActions> */}
+                {!props.data.done &&
+                    <Link to="/exercisedetail/1" className="card__exercise__main">
+                        <Button text="START" />
+                    </Link>
+                }
+
+
             </div>
 
             <Collapse in={expanded} timeout="auto" unmountOnExit>

@@ -7,11 +7,15 @@ import ProfilePage from '../pages/ProfilePage'
 import ProgressPage from '../pages/ProgressPage'
 import TodayExercisesPage from '../pages/TodayExercisesPage'
 import WorkoutsPage from '../pages/WorkoutsPage'
+import LoginPage from '../pages/Login'
+import RegisterPage from '../pages/Register';
 let router = () => {
 
     return (
         <Router basename={process.env.PUBLIC_URL}>
             <Switch>
+                <Route exact path="/auth/login" component={LoginPage} title={"Today!"} />
+                <Route exact path="/auth/register" component={RegisterPage} title={"Today!"} />
                 <Route exact path="/" component={HomePage} title={"Today!"} />
                 <Route exact path="/exercisedetail/:exerciseId" component={ExerciseDetailPage} title={"Today!"} />
 

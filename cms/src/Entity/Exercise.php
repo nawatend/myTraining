@@ -68,6 +68,11 @@ class Exercise
      */
     private $progresses;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Trainer", inversedBy="exercises")
+     */
+    private $trainer;
+
     public function __construct()
     {
         $this->workoutSession = new ArrayCollection();
@@ -228,6 +233,18 @@ class Exercise
                 $progress->setExercise(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTrainer(): ?Trainer
+    {
+        return $this->trainer;
+    }
+
+    public function setTrainer(?Trainer $trainer): self
+    {
+        $this->trainer = $trainer;
 
         return $this;
     }

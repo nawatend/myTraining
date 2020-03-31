@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { FiLogOut } from 'react-icons/fi';
 import { Redirect } from 'react-router-dom'
-import { withRouter } from "react-router-dom";
+import { withRouter, Link } from "react-router-dom";
 import { CardMedia } from '@material-ui/core';
 
 
@@ -34,7 +34,7 @@ let Header = ({ location, match, history }) => {
     const [user, setUser] = useState("Nawang")
     const classes = useStyles();
 
-    console.log(match)
+
     useEffect(() => {
 
     })
@@ -48,11 +48,13 @@ let Header = ({ location, match, history }) => {
                             <MdNavigateBefore />
                         </IconButton>
                     }
-
                     <Typography variant="h6" className={classes.title}>
                         {(getPageName(match.path) === "") ? "My Training" : getPageName(match.path)}
                     </Typography>
-                    <Button color="inherit">Login</Button>
+
+                    <Link to="/auth/login">
+                        <Button color="inherit">Log out</Button>
+                    </Link>
                 </Toolbar>
             </AppBar>
         </div>

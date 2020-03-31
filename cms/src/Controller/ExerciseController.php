@@ -47,23 +47,23 @@ class ExerciseController extends AbstractController
      */
     public function update(Request $request)
     {
-        $newExercise = new Exercise();
+        $exerciseManager = $this->getDoctrine()->getRepository(Exercise::class);
 
         if ($request->isMethod("POST")) {
             $postData = json_decode($request->getContent());
+
+            $oldExercise = $exerciseManager->find($postData->exerciseId);
             $em = $this->getDoctrine()->getManager();
-
-            $newExercise->setTitle($postData->title);
-            $newExercise->setImagePath($postData->imagePath);
-            $newExercise->setVideoPath($postData->videoPath);
-            $newExercise->setCardioLevel($postData->cardioLevel);
-            $newExercise->setMuscleLevel($postData->muscleLevel);
-            $newExercise->setMainInfo($postData->mainInfo);
-            $newExercise->setType($postData->type);
-
-            $em->persist($newExercise);
+            $oldExercise->setTitle($postData->title);
+            $oldExercise->setImagePath($postData->imagePath);
+            $oldExercise->setVideoPath($postData->videoPath);
+            $oldExercise->setCardioLevel($postData->cardioLevel);
+            $oldExercise->setMuscleLevel($postData->muscleLevel);
+            $oldExercise->setMainInfo($postData->mainInfo);
+            $oldExercise->setType($postData->type);
+            $em->persist($oldExercise);
             $em->flush();
         }
-        return $this->json("EXERCISE CREATED");
+        return $this->json("EXERCISE UPDATED");
     }
 }

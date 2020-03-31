@@ -2,10 +2,15 @@
 
 namespace App\Controller;
 
+use App\Entity\Exercise;
 use App\Entity\Sporter;
 use App\Entity\Trainer;
+use App\Entity\TrainerSporter;
 use App\Entity\User;
+use App\Entity\WorkoutSession;
+use App\Entity\WorkoutSessionSporter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -69,9 +74,8 @@ class TrainerController extends AbstractController
 
             $postData = json_decode($request->getContent());
 
-            $trainer= $trainerManager->find($postData->trainerId);
-            $user =$userManager->find($trainer->user);
-
+            $trainer = $trainerManager->find($postData->trainerId);
+            $user = $userManager->find($trainer->user);
 
             //dd($postData);
             $em = $this->getDoctrine()->getManager();
@@ -79,9 +83,9 @@ class TrainerController extends AbstractController
             // info user
             $user->setPassword($passwordEncoder->encodePassword($user, $postData->password));
 
-            if(isset($postData->nickname)){
+            if (isset($postData->nickname)) {
                 $user->setNickname($postData->nickname);
-            }else{
+            } else {
                 dd("no nickname");
             }
 
@@ -102,5 +106,72 @@ class TrainerController extends AbstractController
 
         }
         return $this->json("TRAINER UPDATED");
+    }
+
+
+    /**
+     * @Route("/trainer/addsporter", name="apiTrainerAddSporter", methods={"POST"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function addSporter(Request $request)
+    {
+
+        $trainerManager = $this->getDoctrine()->getRepository(Trainer::class);
+        $sporterManager = $this->getDoctrine()->getRepository(Sporter::class);
+
+        $newSporterToTrainer = new TrainerSporter();
+
+        if ($request->isMethod("POST")) {
+
+            $postData = json_decode($request->getContent());
+            $em = $this->getDoctrine()->getManager();
+
+            $trainer = $trainerManager->find($postData->trainerId);
+
+
+            $sporter = $sporterManager->find($postData->sporterId);
+
+
+            $newSporterToTrainer->setSporter($sporter);
+            $newSporterToTrainer->setTrainer($trainer);
+
+            $em->persist($newSporterToTrainer);
+            $em->flush();
+
+        }
+        return $this->json("ADDED SPORTER TO TRAINER");
+    }
+
+
+    /**
+     * @Route("/trainer/setwstosporter", name="apiTrainerSetWSToSporter", methods={"POST"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function setWSToSporter(Request $request)
+    {
+        $WSManager = $this->getDoctrine()->getRepository(WorkoutSession::class);
+        $trainerManager = $this->getDoctrine()->getRepository(Trainer::class);
+        $sporterManager = $this->getDoctrine()->getRepository(Sporter::class);
+
+        $WSSporter = new WorkoutSessionSporter();
+
+        if ($request->isMethod("POST")) {
+
+            $postData = json_decode($request->getContent());
+            $em = $this->getDoctrine()->getManager();
+
+            $WS = $WSManager->find($postData->WSId);
+            $sporter = $sporterManager->find($postData->sporterId);
+
+            $WSSporter->setSporter($sporter);
+            $WSSporter->setWorkoutsession($WS);
+
+            $em->persist($WSSporter);
+            $em->flush();
+
+        }
+        return $this->json("WS SET TO SPORTER");
     }
 }

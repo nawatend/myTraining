@@ -43,6 +43,9 @@ class SporterController extends AbstractController
             $sporter->setUser($newUser);
             $sporter->setDaysTrainedStreak(0);
             $sporter->setTotalDaysTrained(0);
+            $sporter->setHeight($postData->height);
+            $sporter->setWeight($postData->weight);
+            $sporter->setGoals($postData->goals);
 
             $em->persist($sporter);
             $em->flush();
@@ -80,15 +83,17 @@ class SporterController extends AbstractController
             $user->setLastName($postData->lastname);
             $user->setRoles(['ROLE_SPORTER']);
 
+            $sporter->setHeight($postData->height);
+            $sporter->setWeight($postData->weight);
+            $sporter->setGoals($postData->goals);
+
             $em->persist($user);
             $em->flush();
 
+            $em->persist($sporter);
+            $em->flush();
 
-//            dd($sporter->daysTrainedStreak);
-//
-//
-//            $em->persist($sporter);
-//            $em->flush();
+
         }
         return $this->json("SPORTER UPDATED");
     }

@@ -49,10 +49,16 @@ class Trainer
      */
     private $trainerSporters;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Exercise", mappedBy="trainer")
+     */
+    private $exercises;
+
     public function __construct()
     {
         $this->workoutSessions = new ArrayCollection();
         $this->trainerSporters = new ArrayCollection();
+        $this->exercises = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -164,6 +170,37 @@ class Trainer
             // set the owning side to null (unless already changed)
             if ($trainerSporter->getTrainer() === $this) {
                 $trainerSporter->setTrainer(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Exercise[]
+     */
+    public function getExercises(): Collection
+    {
+        return $this->exercises;
+    }
+
+    public function addExercise(Exercise $exercise): self
+    {
+        if (!$this->exercises->contains($exercise)) {
+            $this->exercises[] = $exercise;
+            $exercise->setTrainer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExercise(Exercise $exercise): self
+    {
+        if ($this->exercises->contains($exercise)) {
+            $this->exercises->removeElement($exercise);
+            // set the owning side to null (unless already changed)
+            if ($exercise->getTrainer() === $this) {
+                $exercise->setTrainer(null);
             }
         }
 

@@ -17,19 +17,31 @@ let TodayExercisesPage = (props) => {
         muscleLevel: "4",
         type: "reps",
         mainInfo: { sets: 3, reps: 8, kg: 16 },
+        done: false,
         description: "ttest descirption is fun but leuk lksdflk sdn dlsknfl ksdlfkj j jds flis  klmlk"
     }
         , {
+        title: "Reps Low",
+        imagePath: "/images/test.jpg",
+        videoPath: "/videos/test.mp4",
+        cardioLevel: "1",
+        muscleLevel: "4",
+        type: "reps",
+        mainInfo: { sets: 3, reps: 8, kg: 16 },
+        done: true,
+        description: "ttest descirption is fun but leuk lksdflk sdn dlsknfl ksdlfkj j jds flis  klmlk"
+    }, {
         title: "2 Title",
         imagePath: "/images/test.jpg",
         videoPath: "/videos/test.mp4",
         cardioLevel: "4",
-        muscleLevel: "2",
-        type: "time",
+        muscleLevel: "2", type: "time",
         mainInfo: { time: 20 },
-        description: "ttest descirption is fun but leuk lksdflk sdn dlsknfl ksdlfkj j jds flis  klmlk"
+        description: "ttest descirption is fun but leuk lksdflk sdn dlsknfl ksdlfkj j jds flis  klmlk",
+        done: false,
     }, {
-        title: "2 Title",
+        title: "Running",
+        done: true,
         imagePath: "/images/test.jpg",
         videoPath: "/videos/test.mp4",
         cardioLevel: "4",
@@ -55,11 +67,12 @@ let TodayExercisesPage = (props) => {
                 <Timer />
             </div> */}
             <SubTitle text="Today's exercises" />
-            {testDatas.map((data, i) => (<ExerciseCard key={i} data={data} />))}
+            {testDatas.map((data, i) => ((!data.done) ? <ExerciseCard key={i} data={data} /> : null))}
             {almostDone &&
                 <Feedback />
             }
             <SubTitle text="Completed exercises" />
+            {testDatas.map((data, i) => ((data.done) ? <ExerciseCard key={i} data={data} /> : null))}
         </div>
     )
 }
