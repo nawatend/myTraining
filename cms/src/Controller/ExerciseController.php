@@ -13,6 +13,23 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class ExerciseController extends AbstractController
 {
+
+    /**
+     * @Route("/test", name="apiGetExercises", methods={"POST", "GET"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function all(Request $request)
+    {
+        $newExercise = new Exercise();
+        $exerciseManager = $this->getDoctrine()->getRepository(Exercise::class);
+
+//        if ($request->isMethod("POST")) {
+//            $postData = json_decode($request->getContent());
+//            $em = $this->getDoctrine()->getManager();
+//        }
+        return $this->json("TEST GET ALL EXERCISE");
+    }
     /**
      * @Route("/exercise/save", name="apiSaveExercise", methods={"POST"})
      * @param Request $request
@@ -33,6 +50,8 @@ class ExerciseController extends AbstractController
             $newExercise->setMuscleLevel($postData->muscleLevel);
             $newExercise->setMainInfo($postData->mainInfo);
             $newExercise->setType($postData->type);
+
+            //$newExercise->setTrainer($postData->trainerId)
 
             $em->persist($newExercise);
             $em->flush();
