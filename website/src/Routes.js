@@ -17,7 +17,8 @@ import {
   //NotFound as NotFoundView
 
   ExerciseEdit as ExerciseEditView,
-  WorkoutSessionEdit as WorkoutSessionEditView
+  WorkoutSessionEdit as WorkoutSessionEditView,
+  WorkoutProgramEdit as WorkoutProgramEditView
 } from './pages';
 
 const Routes = () => {
@@ -72,6 +73,20 @@ const Routes = () => {
         layout={MainLayout}
         path="/exercises/:id"
       />
+
+<RouteWithLayout
+        component={WorkoutSessionsListView}
+        exact
+        layout={MainLayout}
+        path="/workoutprograms"
+      />
+<RouteWithLayout
+        component={WorkoutProgramEditView}
+        exact
+        layout={MainLayout}
+        path="/workoutprogram/create"
+      />
+
       {/* <RouteWithLayout
         component={TypographyView}
         exact

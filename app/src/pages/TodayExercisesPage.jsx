@@ -21,15 +21,17 @@ let TodayExercisesPage = (props) => {
         description: "ttest descirption is fun but leuk lksdflk sdn dlsknfl ksdlfkj j jds flis  klmlk"
     }
         , {
-        title: "Reps Low",
-        imagePath: "/images/test.jpg",
-        videoPath: "/videos/test.mp4",
-        cardioLevel: "1",
-        muscleLevel: "4",
-        type: "reps",
-        mainInfo: { sets: 3, reps: 8, kg: 16 },
-        done: true,
-        description: "ttest descirption is fun but leuk lksdflk sdn dlsknfl ksdlfkj j jds flis  klmlk"
+        trainerId: 1,
+        title: "Stair Run",
+        type: "time",
+        muscleLevel: 2,
+        cardioLevel: 4,
+        imagePath: 'test.jpg',
+        videoPath: 'test.mp4',
+        description: 'Description lorem ipsom lk lkj lkf nI here  odn nneren len nwang tnedar tnaw isc ocool',
+        mainInfo: {
+            time: 22
+        }
     }, {
         title: "2 Title",
         imagePath: "/images/test.jpg",
@@ -53,13 +55,15 @@ let TodayExercisesPage = (props) => {
     const [isRated, setIsRated] = useState(false)
     const [almostDone, setAlmostDone] = useState(false)
 
+
+    
     useEffect(() => {
 
         if (testDatas.length === 1 || testDatas.length === 0) {
             setAlmostDone(true)
         }
 
-    }, [])
+    }, [testDatas.length])
 
     return (
         <div className="today__exercises">

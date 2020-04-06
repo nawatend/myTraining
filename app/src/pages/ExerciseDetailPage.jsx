@@ -6,7 +6,7 @@ import ExerciseMainInfo from '../components/ExerciseMainInfo'
 import Nav from '../components/Nav'
 import Return from '../components/Return'
 import Timer from '../components/Timer'
-
+import ExerciseDone from '../components/exercise/Done'
 let ExerciseDetailPage = () => {
 
 
@@ -17,7 +17,7 @@ let ExerciseDetailPage = () => {
         cardioLevel: "1",
         muscleLevel: "4",
         type: "reps",
-        mainInfo: { sets: 3, reps: 8, kg: 16 },
+        mainInfo: { sets: 4, reps: 8, kg: 16 },
         description: "ttest descirption is fun but leuk lksdflk sdn dlsknfl ksdlfkj j jds flis  klmlk"
     }
         , {
@@ -38,14 +38,34 @@ let ExerciseDetailPage = () => {
         mainInfo: { time: 20 },
         description: "ttest descirption is fun but leuk lksdflk sdn dlsknfl ksdlfkj j jds flis  klmlk"
     }]
-    const [exerciseInfo, setExerciseInfo] = useState(testDatas[1])
+    const [exerciseInfo, setExerciseInfo] = useState(testDatas[0])
+
+    const [isDone, setIsDone] = useState(false)
+    const [finished, setFinished] = useState(false)
+
+
+    const handleDone = () => {
+        console.log('done is cliekd ')
+        setIsDone(true)
+    }
+
+    const handleBack = () => {
+        console.log('back is cliekd ')
+        setIsDone(false)
+    }
+
+    const handleFinished = () => {
+        console.log('fisnihed is cliekd ')
+        setFinished(true)
+    }
+
 
     useEffect(() => {
 
 
     }, [])
-    return (
 
+    return (
 
         <div className="exercise__detail">
             <div className="exercise__detail__media">
@@ -58,23 +78,26 @@ let ExerciseDetailPage = () => {
                     aspectratio="wide"
                 />
             </div>
-            <div className="exercise__detail__info">
-                <div className="exercise__detail__info__header">
-                    <div className="exercise__detail__info__header--title">{exerciseInfo.title}</div>
-                    <div className="exercise__detail__info__header--button">
-                        <Button text="DONE" />
+
+            {isDone ? <ExerciseDone mainInfo={exerciseInfo.mainInfo} handleBack={handleBack} handleFinished={handleFinished} /> :
+                (<div className="exercise__detail__info">
+                    <div className="exercise__detail__info__header">
+                        <div className="exercise__detail__info__header--title">{exerciseInfo.title}</div>
+                        <div className="exercise__detail__info__header--button">
+                            <Button onClick={handleDone} text="DONE" />
+                        </div>
                     </div>
-                </div>
-                <div className="detail__timer">
-                    <Timer />
-                </div>
+                    <div className="detail__timer">
+                        <Timer />
+                    </div>
 
-                <ExerciseMainInfo mainInfo={exerciseInfo} />
-                <div className="exercise__detail__info__description">
-                    {exerciseInfo.description}
-                </div>
+                    <ExerciseMainInfo mainInfo={exerciseInfo} />
+                    <div className="exercise__detail__info__description">
+                        {exerciseInfo.description}
+                    </div>
 
-            </div>
+                </div>)
+            }
         </div>
     )
 }

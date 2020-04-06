@@ -576,8 +576,6 @@ let ExerciseEdit = (props) => {
                                 <ImageUpload onChange={handleImage} />
                                 <VideoUpload onChange={handleVideo} />
 
-
-                               
                                 <Button
                                     className={classes.signUpButton}
                                     color="primary"

@@ -1,10 +1,18 @@
 .login
     @include wrapper
     min-height: 100vh
+    height: 100vh
     .login__icon
-        height: 50vh
+        height: 50%
         width: 100%
-        background-color: lightgreen
+        display: flex
+        justify-content: center
+        align-items: center
+        img
+            max-width: 100%
+            height: auto
+            display: block
+
 
     .form__actions
         margin-top: $ws-md

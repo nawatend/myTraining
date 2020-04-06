@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import BaseLayout from '../layouts/base';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 
 import clsx from 'clsx'
 import IconButton from '@material-ui/core/IconButton';
@@ -87,6 +87,9 @@ const marks = {
 
 
 let RegisterPage = () => {
+
+    let history = useHistory();
+
     const classes = useStyles();
     const [activeStep, setActiveStep] = useState(0);
     const steps = getSteps();
@@ -137,6 +140,11 @@ let RegisterPage = () => {
 
     const handleNext = () => {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    };
+
+    const handleFinish = () => {
+        history.push("/")
+
     };
 
     const handleBack = () => {
@@ -272,7 +280,7 @@ let RegisterPage = () => {
                                                 <Button
                                                     variant="contained"
                                                     color="primary"
-                                                    onClick={handleNext}
+                                                    onClick={(activeStep === steps.length - 1) ? handleFinish : handleNext}
                                                     className={classes.button}
                                                 >
                                                     {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
@@ -283,14 +291,14 @@ let RegisterPage = () => {
                                 </Step>
                             ))}
                         </Stepper>
-                        {activeStep === steps.length && (
+                        {/* {activeStep === steps.length && (
                             <Paper square elevation={0} className={classes.resetContainer}>
                                 <Typography>All steps completed - you&apos;re finished</Typography>
                                 <Button onClick={handleReset} className={classes.button}>
                                     Reset
                                 </Button>
                             </Paper>
-                        )}
+                        )} */}
                     </div>
                 </div>
             </main>

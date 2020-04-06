@@ -59,6 +59,7 @@ let LoginPage = () => {
             <main className="main__content">
                 <div className="login">
                     <div className="login__icon">
+                        <img src={`${process.env.PUBLIC_URL}/svgs/start_logo.svg`} alt="" srcSet="" />
                     </div>
                     <form className={classes.root} noValidate autoComplete="off">
                         <TextField
