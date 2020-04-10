@@ -33,6 +33,9 @@ import FormLabel from '@material-ui/core/FormLabel';
 //slider
 import Slider from '@material-ui/core/Slider';
 
+//api
+import { AuthService, UserService } from '../api'
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -97,31 +100,27 @@ let RegisterPage = () => {
     //user informations
     const [userInfo, setUserInfo] = useState({
         gender: "female",
-        height: '168',
-        weight: '50',
-        goals: 'muscle',
-        fullname: '',
+        height: 168,
+        weight: 50,
+        goal: 'muscle',
+        fullName: '',
         email: '',
-        password: ''
+        password: '',
+        age: 20,
+        showPassword: false,
+        role: "sporter",
+        imageName: "test.jpg"
     })
 
-    //for password
-    const [values, setValues] = React.useState({
-        amount: '',
-        password: '',
-        weight: '',
-        weightRange: '',
-        showPassword: false,
-    })
     const handleClickShowPassword = () => {
-        setValues({ ...values, showPassword: !values.showPassword })
+        setUserInfo({ ...userInfo, showPassword: !userInfo.showPassword })
     }
 
     const handleMouseDownPassword = (event) => {
         event.preventDefault()
     }
     const handlePasswordChange = (prop) => (event) => {
-        setValues({ ...values, [prop]: event.target.value })
+        setUserInfo({ ...userInfo, [prop]: event.target.value })
     }
     //end  password
 
@@ -135,7 +134,6 @@ let RegisterPage = () => {
         console.log(event.target.value)
         setUserInfo({ ...userInfo, [event.target.name]: event.target.value })
     }
-
 
 
     const handleNext = () => {
@@ -155,6 +153,32 @@ let RegisterPage = () => {
         setActiveStep(0);
     };
 
+    useEffect(() => {
+        // Auth.login({ email: "sporter@gmail.com", password: "111111" }).then(() => {
+        //     console.log("pushed")
+        //     history.push("/")
+        // }).catch((e) => console.log('failed log'))
+
+
+        // axios.post("http://127.0.0.1:4000/api/auth/login", { email: "sporter@gmail.com", password: "111111" })
+        //     .then((response) => {
+        //         if (response.status === 200) {
+        //             console.log(response.data)
+        //         }
+        //     }).catch((error) => {
+        //         console.log(error)
+        //     })
+    }, [history])
+
+    const registerUser = (e) => {
+        e.preventDefault()
+
+        UserService.createUser(userInfo)
+            .then((response) => {
+                console.log("pushed")
+                history.push("/")
+            }).catch((e) => console.log('failed registration'))
+    }
 
     function getStepContent(step) {
         switch (step) {
@@ -206,11 +230,11 @@ let RegisterPage = () => {
 
             case 3:
                 return (<FormControl component="fieldset">
-                    <RadioGroup aria-label="goals" name="goal" value={userInfo.goals} onChange={handleChange('goals')}>
+                    <RadioGroup aria-label="goal" name="goal" value={userInfo.goal} onChange={handleChange('goal')}>
                         <FormControlLabel value="strength" control={<Radio />} label="Build Strength" />
                         <FormControlLabel value="muscle" control={<Radio />} label="Build Muscle" />
-                        <FormControlLabel value="lose fat" control={<Radio />} label="Lose Fat" />
-                        <FormControlLabel value="cardio" control={<Radio />} label="Improve Stamina" />
+                        <FormControlLabel value="fat" control={<Radio />} label="Lose Fat" />
+                        <FormControlLabel value="stamina" control={<Radio />} label="Improve Stamina" />
                     </RadioGroup>
                 </FormControl>)
             case 4:
@@ -219,7 +243,7 @@ let RegisterPage = () => {
                         onChange={handleTextFieldChange}
                         id="standard-helperText"
                         label="Full name"
-                        name='fullname'
+                        name='fullName'
                     />
                     <TextField
                         id="standard-helperText"
@@ -232,8 +256,8 @@ let RegisterPage = () => {
                         <InputLabel htmlFor="standard-adornment-password">Password</InputLabel>
                         <Input
                             id="standard-adornment-password"
-                            type={values.showPassword ? 'text' : 'password'}
-                            value={values.password}
+                            type={userInfo.showPassword ? 'text' : 'password'}
+                            value={userInfo.password}
                             onChange={handlePasswordChange('password')}
                             endAdornment={
                                 <InputAdornment position="end">
@@ -242,7 +266,7 @@ let RegisterPage = () => {
                                         onClick={handleClickShowPassword}
                                         onMouseDown={handleMouseDownPassword}
                                     >
-                                        {values.showPassword ? <MdVisibilityOff /> : <MdVisibility />}
+                                        {userInfo.showPassword ? <MdVisibilityOff /> : <MdVisibility />}
                                     </IconButton>
                                 </InputAdornment>
                             }
@@ -254,7 +278,6 @@ let RegisterPage = () => {
                 return 'Unknown step';
         }
     }
-
 
     return (
         <div className="App main__app">
@@ -280,7 +303,7 @@ let RegisterPage = () => {
                                                 <Button
                                                     variant="contained"
                                                     color="primary"
-                                                    onClick={(activeStep === steps.length - 1) ? handleFinish : handleNext}
+                                                    onClick={(activeStep === steps.length - 1) ? registerUser : handleNext}
                                                     className={classes.button}
                                                 >
                                                     {activeStep === steps.length - 1 ? 'Finish' : 'Next'}

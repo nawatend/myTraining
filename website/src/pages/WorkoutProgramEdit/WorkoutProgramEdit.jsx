@@ -285,7 +285,7 @@ let WorkoutProgramEdit = (props) => {
         }));
 
         console.log('workout program')
-        axios.post("http://127.0.0.1:8000/test",{})
+        axios.get("http://127.0.0.1:3001/api/users")
             .then((response) => {
                 if (response.status === 200) {
                     console.log(response.data)
