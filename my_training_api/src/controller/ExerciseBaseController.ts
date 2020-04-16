@@ -24,7 +24,26 @@ export class ExerciseBaseController {
 
   static one = async (request: Request, response: Response, next: NextFunction) => {
 
-    const result = getRepository(ExerciseBase).findOne(request.params.id, { relations: ["trainer"] });
+    const result = await getRepository(ExerciseBase).findOne(request.params.id, { relations: ["trainer"] });
+    if (result instanceof Promise) {
+      result.then(result => result !== null && result !== undefined ? response.send(result) : undefined);
+
+    } else if (result !== null && result !== undefined) {
+      response.json(result);
+    }
+
+    if (result === undefined) {
+      return response.status(404).json({
+        message: `Could not find a exercise with id ${request.params.id}`
+      })
+    }
+  }
+  static allByTrainer = async (request: Request, response: Response, next: NextFunction) => {
+
+    // const results = getRepository(ExerciseBase).
+    // .createQueryBuilder("exercise_base")
+    // .where("trainer")
+    const result = await getRepository(ExerciseBase).find({ relations: ["trainer"], where: { trainer: request.params.trainerId } });
     if (result instanceof Promise) {
       result.then(result => result !== null && result !== undefined ? response.send(result) : undefined);
 
@@ -36,9 +55,12 @@ export class ExerciseBaseController {
   static save = async (request: Request, response: Response, next: NextFunction) => {
 
 
-    let { title, trainerId, type, cardioLevel, muscleLevel, description, imageName, videoName } = request.body;
+    let { title, trainerId, type, cardioLevel, muscleLevel, description, imageName, videoName, id } = request.body;
     let exerciseBase = new ExerciseBase();
 
+    if (id !== '') {
+      exerciseBase.id = id
+    }
     exerciseBase.title = title
     exerciseBase.trainer = trainerId
     exerciseBase.type = type

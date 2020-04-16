@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link as RouterLink, withRouter } from 'react-router-dom';
+import { Link as RouterLink, withRouter, useHistory, Redirect, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import validate from 'validate.js';
 import { makeStyles } from '@material-ui/styles';
@@ -18,8 +18,10 @@ import ImageUpload from '../../components/UploadFiles/ImageUpload'
 import VideoUpload from '../../components/UploadFiles/VideoUpload'
 
 //api
-import { ExerciseService } from '../../services'
-import axios from 'axios'
+import { ExerciseBaseService, TrainerService } from '../../services/api'
+
+//jwt authen
+import { isJWTValid, getTrainerIdFromJWT } from '../../utils/jwt'
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -111,6 +113,10 @@ const useStyles = makeStyles(theme => ({
     },
     signUpButton: {
         margin: theme.spacing(2, 0)
+    },
+    deleteButton: {
+        color: theme.palette.error.main,
+        margin: theme.spacing(2, 0)
     }
 }));
 
@@ -150,24 +156,23 @@ let ExerciseEdit = (props) => {
     const { history } = props;
 
     const classes = useStyles();
-
+    const { id } = useParams()
+    const [isAuth, setIsAuth] = useState(true)
+    const [loading, setLoading] = useState(true)
     const [values, setValues] = useState({
+        id: '',
         title: 'Nawang',
         type: '',
-        imagePath: '',
-        videoPath: '',
+        imageName: '',
+        videoName: '',
         cardioLevel: 0,
         muscleLevel: 0,
-        mainInfo: '',
-        time: 0,
-        repetition: 0,
-        set: 0,
-        kg: 0,
         description: 'Descriot',
         isValid: false,
         values: {},
         touched: {},
-        errors: {}
+        errors: {},
+        trainerId: '-'
     })
 
     const selections = {
@@ -219,8 +224,12 @@ let ExerciseEdit = (props) => {
 
 
     useEffect(() => {
-        const errors = validate(values.values, schema);
+        setIsAuth(isJWTValid())
+    }, [isAuth])
 
+
+    useEffect(() => {
+        const errors = validate(values.values, schema);
         setValues(values => ({
             ...values,
             isValid: errors ? false : true,
@@ -228,17 +237,54 @@ let ExerciseEdit = (props) => {
         }));
     }, [values.values]);
 
+
+    //get once data from db
+    useEffect(() => {
+        if (id !== undefined) {
+            if (loading) {
+                ExerciseBaseService.getExerciseBaseById(id)
+                    .then((res) => {
+                        setValues({
+                            ...values, ...res, values: {
+                                description: res.description,
+                                type: res.type,
+                                title: res.title
+                            }, trainerId: res.trainer.id
+                        })
+                        setLoading(false)
+                        console.log(res)
+                    }).catch(error => {
+                        console.log(error)
+                        history.push('/exercises')
+                    })
+            }
+        }
+    }, [values])
+
+    useEffect(() => {
+        if (isAuth) {
+            TrainerService.getTrainerByUserId(getTrainerIdFromJWT())
+                .then((res) => {
+                    console.log(res)
+                    setValues(values => ({
+                        ...values,
+                        trainerId: res.id
+                    }));
+                }).catch((e) => console.log('trainer not found'))
+        }
+    }, [isAuth])
+
     const handleImage = (publicId) => {
         setValues({
             ...values,
-            imagePath: publicId
+            imageName: publicId
         })
     }
 
     const handleVideo = (publicId) => {
         setValues({
             ...values,
-            videoPath: publicId
+            videoName: publicId
         })
     }
 
@@ -268,53 +314,13 @@ let ExerciseEdit = (props) => {
 
     const saveExercise = async (e) => {
         e.preventDefault()
-        //TODO save exercise to db
-        let data = {}
+        //ExerciseService
+        ExerciseBaseService.createExerciseBase(values)
+            .then((res) => {
+                console.log(res)
+                history.push("/exercises")
+            }).catch((e) => console.log('failed saved'))
 
-        if (values.type === "time") {
-            data = {
-                trainerId: 1,
-                title: values.title,
-                type: values.type,
-                muscleLevel: values.muscleLevel,
-                cardioLevel: values.cardioLevel,
-                imagePath: values.imagePath,
-                videoPath: values.videoPath,
-                description: values.description,
-                mainInfo: [{ time: values.time }]
-            }
-        } else {
-            data = {
-                trainerId: 1,
-                title: values.title,
-                type: values.type,
-                muscleLevel: values.muscleLevel,
-                cardioLevel: values.cardioLevel,
-                imagePath: values.imagePath,
-                videoPath: values.videoPath,
-                description: values.description,
-                mainInfo: [{ set: values.set, reps: values.repetition, rest: "2 min" }]
-            }
-        }
-
-
-
-        //ExerciseService.createExercise(data)
-
-        await axios.post("http://127.0.0.1:8000/exercises", {}, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json'
-            }
-        })
-            .then((response) => {
-                if (response.status === 200) {
-                    console.log(response.data)
-                }
-            }).catch((error) => {
-                console.log(error)
-
-            })
     }
 
     const handleBack = () => {
@@ -329,137 +335,143 @@ let ExerciseEdit = (props) => {
     const hasError = field =>
         values.touched[field] && values.errors[field] ? true : false;
 
-    return (
-        <div className={classes.root}>
-            <Grid
-                className={classes.grid}
-                container
-            >
+    if (!isAuth) {
+        return (
+            <Redirect to='/sign-in' />
+        )
+    } else {
+
+        return (
+            <div className={classes.root}>
                 <Grid
-                    className={classes.content}
-                    item
-                    lg={7}
-                    xs={12}
+                    className={classes.grid}
+                    container
                 >
-                    <div className={classes.content}>
-                        <div className={classes.contentHeader}>
-                            <IconButton onClick={handleBack}>
-                                <ArrowBackIcon />
-                            </IconButton>
-                        </div>
-                        <div className={classes.contentBody}>
-                            <form
-                                className={classes.form}
-                                onSubmit={handleSignUp}
-                            >
-                                <Typography
-                                    className={classes.title}
-                                    variant="h2"
+                    <Grid
+                        className={classes.content}
+                        item
+                        lg={7}
+                        xs={12}
+                    >
+                        <div className={classes.content}>
+                            <div className={classes.contentHeader}>
+                                <IconButton onClick={handleBack}>
+                                    <ArrowBackIcon />
+                                </IconButton>
+                            </div>
+                            <div className={classes.contentBody}>
+                                <form
+                                    className={classes.form}
+
                                 >
-                                    Create new exercise
+                                    <Typography
+                                        className={classes.title}
+                                        variant="h2"
+                                    >
+                                        Create new exercise
                             </Typography>
-                                <Typography
-                                    color="textSecondary"
-                                    gutterBottom
-                                >
-                                    Fill detail of new exercise
+                                    <Typography
+                                        color="textSecondary"
+                                        gutterBottom
+                                    >
+                                        Fill detail of new exercise
                             </Typography>
-                                <TextField
-                                    className={classes.textField}
-                                    error={hasError('title')}
-                                    fullWidth
-                                    helperText={
-                                        hasError('title') ? values.errors.title[0] : null
-                                    }
-                                    label="Title"
-                                    name="title"
-                                    onChange={handleChange}
-                                    type="text"
-                                    value={values.values.title || ''}
-                                    variant="outlined"
-                                    required
-                                />
+                                    <TextField
+                                        className={classes.textField}
+                                        error={hasError('title')}
+                                        fullWidth
+                                        helperText={
+                                            hasError('title') ? values.errors.title[0] : null
+                                        }
+                                        label="Title"
+                                        name="title"
+                                        onChange={handleChange}
+                                        type="text"
+                                        value={values.title || ''}
+                                        variant="outlined"
+                                        required
+                                    />
 
-                                <TextField
-                                    className={classes.textField}
-                                    fullWidth
-                                    label="Select Type"
-                                    margin="dense"
-                                    name="type"
-                                    onChange={handleChange}
-                                    required
-                                    select
-                                    // eslint-disable-next-line react/jsx-sort-props
-                                    SelectProps={{ native: true }}
-                                    value={values.type}
-                                    variant="outlined"
-                                >
-                                    {selections.types.map(option => (
-                                        <option
-                                            key={option.value}
-                                            value={option.value}
-                                        >
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </TextField>
+                                    <TextField
+                                        className={classes.textField}
+                                        fullWidth
+                                        label="Select Type"
+                                        margin="dense"
+                                        name="type"
+                                        onChange={handleChange}
+                                        required
+                                        select
+                                        // eslint-disable-next-line react/jsx-sort-props
+                                        SelectProps={{ native: true }}
+                                        value={values.type}
+                                        variant="outlined"
+                                    >
+                                        {selections.types.map(option => (
+                                            <option
+                                                key={option.value}
+                                                value={option.value}
+                                            >
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </TextField>
 
-                                <TextField
-                                    className={classes.textField}
-                                    fullWidth
-                                    label="Select Cardio Level"
-                                    margin="dense"
-                                    name="cardioLevel"
-                                    onChange={handleChange}
-                                    required
-                                    select
-                                    // eslint-disable-next-line react/jsx-sort-props
-                                    SelectProps={{ native: true }}
-                                    value={values.cardioLevel}
-                                    variant="outlined"
-                                >
-                                    {selections.levels.map(option => (
-                                        <option
-                                            key={option.value}
-                                            value={option.value}
-                                        >
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </TextField>
+                                    <TextField
+                                        className={classes.textField}
+                                        fullWidth
+                                        label="Select Cardio Level"
+                                        margin="dense"
+                                        name="cardioLevel"
+                                        onChange={handleChange}
+                                        required
+                                        select
+                                        // eslint-disable-next-line react/jsx-sort-props
+                                        SelectProps={{ native: true }}
+                                        value={values.cardioLevel}
+                                        variant="outlined"
+                                    >
+                                        {selections.levels.map(option => (
+                                            <option
+                                                key={option.value}
+                                                value={option.value}
+                                            >
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </TextField>
 
-                                <TextField
-                                    className={classes.textField}
-                                    fullWidth
-                                    label="Select Muscle Level"
-                                    margin="dense"
-                                    name="muscleLevel"
-                                    onChange={handleChange}
-                                    required
-                                    select
-                                    // eslint-disable-next-line react/jsx-sort-props
-                                    SelectProps={{ native: true }}
-                                    value={values.muscleLevel}
-                                    variant="outlined"
-                                >
-                                    {selections.levels.map(option => (
-                                        <option
-                                            key={option.value}
-                                            value={option.value}
-                                        >
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </TextField>
+                                    <TextField
+                                        className={classes.textField}
+                                        fullWidth
+                                        label="Select Muscle Level"
+                                        margin="dense"
+                                        name="muscleLevel"
+                                        onChange={handleChange}
+                                        required
+                                        select
+                                        // eslint-disable-next-line react/jsx-sort-props
+                                        SelectProps={{ native: true }}
+                                        value={values.muscleLevel}
+                                        variant="outlined"
+                                    >
+                                        {selections.levels.map(option => (
+                                            <option
+                                                key={option.value}
+                                                value={option.value}
+                                            >
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </TextField>
 
-                                <Typography
+                                    {/* <Typography
                                     className={classes.title}
                                     variant="h4"
                                 >
                                     Main Information of exercise
-                            </Typography>
+                            </Typography> */}
 
-                                {values.type === 'time' ?
+                                    {/* {values.type === 'time' ?
                                     (<TextField
                                         className={classes.textField}
                                         error={hasError('time')}
@@ -547,55 +559,67 @@ let ExerciseEdit = (props) => {
                                         </Grid>
 
                                     )
-                                }
+                                } */}
 
-                                <TextField
-                                    className={classes.textField}
-                                    error={hasError('description')}
-                                    fullWidth
-                                    helperText={
-                                        hasError('description') ? values.errors.description[0] : null
-                                    }
-                                    label="Description"
-                                    name="description"
-                                    onChange={handleChange}
-                                    type="text"
-                                    value={values.values.description || ''}
-                                    variant="outlined"
-                                    multiline
-                                    rows="6"
-                                />
+                                    <TextField
+                                        className={classes.textField}
+                                        error={hasError('description')}
+                                        fullWidth
+                                        helperText={
+                                            hasError('description') ? values.errors.description[0] : null
+                                        }
+                                        label="Description"
+                                        name="description"
+                                        onChange={handleChange}
+                                        type="text"
+                                        value={values.description || ''}
+                                        variant="outlined"
+                                        multiline
+                                        rows="6"
+                                    />
 
 
-                                <Typography
-                                    className={classes.title}
-                                    variant="h4"
-                                >
-                                    Upload Files
+                                    <Typography
+                                        className={classes.title}
+                                        variant="h4"
+                                    >
+                                        Upload Files
                             </Typography>
-                                <ImageUpload onChange={handleImage} />
-                                <VideoUpload onChange={handleVideo} />
+                                    <ImageUpload onChange={handleImage} image={values.imageName} />
+                                    <VideoUpload onChange={handleVideo} video={values.videoName} />
 
-                                <Button
-                                    className={classes.signUpButton}
-                                    color="primary"
-                                    disabled={!values.isValid}
-                                    fullWidth
-                                    size="large"
-                                    type="submit"
-                                    variant="contained"
-                                    onClick={(e) => saveExercise(e)}
-                                >
-                                    SAVE EXERCISE
+                                    <Button
+                                        className={classes.signUpButton}
+                                        color="primary"
+                                        disabled={!values.isValid}
+                                        fullWidth
+                                        size="large"
+                                        type="submit"
+                                        variant="contained"
+                                        onClick={(e) => saveExercise(e)}
+                                    >
+                                        SAVE EXERCISE
                     </Button>
+                                    {id !== undefined &&
+                                        <Button
+                                            className={classes.deleteButton}
+                                            color="warning"
+                                            fullWidth
+                                            size="large"
+                                            variant="contained"
+                                        >
+                                            Delete
+                                </Button>
+                                    }
 
-                            </form>
+                                </form>
+                            </div>
                         </div>
-                    </div>
+                    </Grid>
                 </Grid>
-            </Grid>
-        </div >
-    );
+            </div >
+        );
+    }
 }
 
 

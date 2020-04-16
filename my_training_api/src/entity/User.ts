@@ -29,13 +29,12 @@ export class User {
 
     @Column({
         type: "enum",
-        enum: ["admin", "sporter", "trainer"],
-        default: "sporter"
+        enum: ["admin", "sporter", "trainer"]
     })
     @IsNotEmpty()
     role: UserRole;
 
-    @Column()
+    @Column({ default: 0 })
     age: number;
 
     @Column({
@@ -45,7 +44,7 @@ export class User {
     gender: Gender;
 
 
-    @Column()
+    @Column({ default: 'test.jpg' })
     imageName: string;
 
     @Column()

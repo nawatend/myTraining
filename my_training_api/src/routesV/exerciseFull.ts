@@ -7,6 +7,7 @@ const exerciseFullRouter = express.Router()
 exerciseFullRouter
   .get('/', ExerciseFullController.all)
   .get('/:id', ExerciseFullController.one)
+  .get('/workoutsession/:workoutSessionId', ExerciseFullController.allByWorkoutSession)
   .post('/', ExerciseFullController.save)
   .delete('/:id', ExerciseFullController.remove)
 

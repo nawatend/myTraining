@@ -1,8 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { makeStyles } from '@material-ui/styles'
 
-import { UsersToolbar, UsersTable } from './components'
+import { ExercisesToolbar, ExercisesTable } from './components'
 import mockData from './data'
+//api
+import { ExerciseBaseService, TrainerService } from '../../services/api'
+//jwt authen
+import { isJWTValid, getTrainerIdFromJWT } from '../../utils/jwt'
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -13,19 +18,42 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const UserList = () => {
+const ExerciseList = () => {
   const classes = useStyles()
 
-  const [users] = useState(mockData)
+ 
+  const [exercises, setExercises] = useState([])
+
+  const [trainerId, setTrainerId] = useState(null)
+  useEffect(() => {
+
+    TrainerService.getTrainerByUserId(getTrainerIdFromJWT())
+      .then((res) => {
+        console.log(res)
+        setTrainerId(res.id)
+      }).catch((e) => console.log('trainer not found'))
+
+  }, [trainerId])
+
+  useEffect(() => {
+    if (trainerId !== null) {
+      ExerciseBaseService.getExerciseBasesByTrainer(trainerId)
+        .then((res) => {
+          console.log(res)
+          setExercises(res)
+        }).catch((e) => console.log('exercises not found'))
+    }
+  }, [trainerId])
+
 
   return (
     <div className={classes.root}>
-      <UsersToolbar />
+      <ExercisesToolbar />
       <div className={classes.content}>
-        <UsersTable users={users} />
+        <ExercisesTable exercises={exercises} />
       </div>
     </div>
   )
 }
 
-export default UserList
+export default ExerciseList

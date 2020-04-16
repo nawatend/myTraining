@@ -3,7 +3,7 @@ import { Length, IsNotEmpty } from "class-validator";
 import { User } from "./User";
 import { Trainer } from './Trainer'
 import { ExerciseBase } from './ExerciseBase'
-import {WorkoutSession } from './WorkoutSession'
+import { WorkoutSession } from './WorkoutSession'
 import { Progress } from "./Progress";
 
 export enum ExerciseType {
@@ -13,7 +13,6 @@ export enum ExerciseType {
 }
 
 @Entity()
-@Unique(["exerciseBase"])
 export class ExerciseFull {
 
   @PrimaryGeneratedColumn()
@@ -37,7 +36,7 @@ export class ExerciseFull {
   @Column("float")
   kg: number;
 
-  @Column("int")
+  @Column("int", { default: 3})
   restTimeInMinutes: number;
 
   @OneToMany(type => Progress, progress => progress.exerciseFull)

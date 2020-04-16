@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import moment from 'moment';
@@ -53,15 +53,26 @@ let VideoUpload = (props) => {
   const { className, ...rest } = props;
 
   const [completedUpload, setCompletedUpload] = useState(0)
-  const [videos, setVideos] = useState([])
+  const [video, setVideo] = useState()
   const classes = useStyles();
+
+
+
+  useEffect(() => {
+    if (props.video !== '') {
+      setCompletedUpload(100)
+      setVideo(props.video)
+    }
+
+  }, [props.video])
 
   const beginUpload = tag => {
     const uploadOptions = {
       cloudName: "filesmytraining",
       tags: [tag],
       uploadPreset: "file_mt_",
-      folder: 'videos'
+      folder: 'videos',
+      multiple: false
     };
 
     openUploadWidget(uploadOptions, (error, medias) => {
@@ -69,7 +80,7 @@ let VideoUpload = (props) => {
         console.log(medias);
         if (medias.event === 'success') {
           props.onChange(medias.info.public_id)
-          setVideos([...videos, medias.info.public_id])
+          setVideo(medias.info.public_id)
         }
       } else {
         console.log(error);
@@ -101,11 +112,10 @@ let VideoUpload = (props) => {
         >
           <CloudinaryContext cloudName="filesmytraining">
 
-            {videos.map(i => <Video key={i} className={classes.image} controls={true} cloudName="filesmytraining" publicId={i}>
-
+          {video !== undefined && 
+            <Video key={video} className={classes.image} controls={true} cloudName="filesmytraining" publicId={video}>
             </Video>
-
-            )}
+          }
 
           </CloudinaryContext>
         </Grid>

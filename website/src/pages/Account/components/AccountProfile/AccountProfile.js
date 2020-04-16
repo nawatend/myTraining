@@ -13,6 +13,7 @@ import {
   Button,
   LinearProgress
 } from '@material-ui/core';
+import { CloudinaryContext, Image } from "cloudinary-react";
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -31,6 +32,10 @@ const useStyles = makeStyles(theme => ({
   },
   uploadButton: {
     marginRight: theme.spacing(2)
+  },
+  profileImage: {
+    width: '150%',
+    margin: 0
   }
 }));
 
@@ -78,8 +83,18 @@ const AccountProfile = props => {
           </div>
           <Avatar
             className={classes.avatar}
-            src={user.avatar}
-          />
+          //src={user.avatar}
+          >
+            <CloudinaryContext cloudName="filesmytraining">
+              <Image
+                className={classes.profileImage}
+                alt="WorkoutSession"
+                publicId="images/skr_odh78c"
+                fetch-format="auto"
+                quality="auto"
+              />
+            </CloudinaryContext>
+          </Avatar>
         </div>
         <div className={classes.progress}>
           <Typography variant="body1">Profile Completeness: 70%</Typography>

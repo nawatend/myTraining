@@ -6,6 +6,8 @@ import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import { List, ListItem, Button, colors } from '@material-ui/core';
+//api services
+import { UserService, AuthService } from '../../../../../../services/api'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -54,6 +56,9 @@ const SidebarNav = props => {
 
   const classes = useStyles();
 
+  const signout = () => {
+    AuthService.logout()
+  }
   return (
     <List
       {...rest}
@@ -70,6 +75,7 @@ const SidebarNav = props => {
             className={classes.button}
             component={CustomRouterLink}
             to={page.href}
+            onClick={(page.href === "/sign-out") ? signout : null}
           >
             <div className={classes.icon}>{page.icon}</div>
             {page.title}

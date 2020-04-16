@@ -34,16 +34,26 @@ export class WorkoutProgramController {
     }
   }
 
+
+  static allByTrainer = async (request: Request, response: Response, next: NextFunction) => {
+
+    const result = getRepository(WorkoutProgram).find({ relations: ["trainer"], where: { trainer: request.params.trainerId } });
+    if (result instanceof Promise) {
+      result.then(result => result !== null && result !== undefined ? response.send(result) : undefined);
+
+    } else if (result !== null && result !== undefined) {
+      response.json(result);
+    }
+  }
+
   static save = async (request: Request, response: Response, next: NextFunction) => {
 
-    let { title, trainerId, type, workoutSessionIds } = request.body;
+    let { title, trainerId, type, workoutSessions } = request.body;
     let workoutProgram = new WorkoutProgram();
 
     workoutProgram.title = title
     workoutProgram.trainer = trainerId
     workoutProgram.type = type
-
-
 
     const workoutProgramRepository = getRepository(WorkoutProgram)
     const workoutSessionRepository = getRepository(WorkoutSession)
@@ -51,7 +61,7 @@ export class WorkoutProgramController {
     try {
       await workoutProgramRepository.save(workoutProgram)
 
-      let result = await getRepository(WorkoutSession).findByIds(workoutSessionIds);
+      let result = await getRepository(WorkoutSession).findByIds(workoutSessions);
 
       result.forEach(async ws => {
         try {
@@ -76,14 +86,13 @@ export class WorkoutProgramController {
   static update = async (request: Request, response: Response, next: NextFunction) => {
 
 
-    let { workoutProgramId, title, trainerId, type, workoutSessionIds } = request.body;
-    let workoutProgram = new WorkoutProgram();
+    let { workoutProgramId, title, type, workoutSessions } = request.body;
+    let workoutProgram = await getRepository(WorkoutProgram).findOne(workoutProgramId, { relations: ["trainer"] });
 
     workoutProgram.title = title
-    workoutProgram.trainer = trainerId
     workoutProgram.type = type
 
-
+    let oldWorkoutSessions = await getRepository(WorkoutSession).find({ relations: ["trainer", "workoutProgram"], where: { workoutProgram: workoutProgramId } });
 
     const workoutProgramRepository = getRepository(WorkoutProgram)
     const workoutSessionRepository = getRepository(WorkoutSession)
@@ -91,18 +100,29 @@ export class WorkoutProgramController {
     try {
       await workoutProgramRepository.save(workoutProgram)
 
-      let result = await getRepository(WorkoutSession).findByIds(workoutSessionIds);
 
-      result.forEach(async ws => {
-        try {
-          ws.workoutProgram = workoutProgram
-          //await workoutSessionRepository.update(ws, { workoutProgramId: workoutProgram.id })
-          await workoutSessionRepository.save(ws)
-        } catch (e) {
-          console.log(e)
-          return;
-        }
+      //update all old sessions and remove deleted sessions
+      oldWorkoutSessions.forEach(async oldWorkoutSession => {
+        console.log('WS  remove from WP')
+        oldWorkoutSession.workoutProgram = null
+        await workoutSessionRepository.save(oldWorkoutSession)
       });
+
+
+      //update all new to this WP
+      workoutSessions.forEach(async newWorkoutSession => {
+        console.log('WS  added from WP')
+        newWorkoutSession.workoutProgram = workoutProgramId
+        await workoutSessionRepository.save(newWorkoutSession)
+      });
+
+      // workoutSessions.forEach(async newWorkoutSession => {
+      //   if (newWorkoutSession.workoutProgram === null) {
+      //     console.log('WS added to WP')
+      //     newWorkoutSession.workoutProgram = workoutProgramId
+      //     await workoutSessionRepository.save(newWorkoutSession)
+      //   }
+      // });
 
     } catch (e) {
       console.log(e)

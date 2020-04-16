@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link as RouterLink, withRouter } from 'react-router-dom';
+import { Link as RouterLink, withRouter, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import validate from 'validate.js';
 import { makeStyles } from '@material-ui/styles';
@@ -16,17 +16,18 @@ import {
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import ImageUpload from '../../components/UploadFiles/ImageUpload'
 import VideoUpload from '../../components/UploadFiles/VideoUpload'
-import AddExerciseList from './components/AddExerciseList'
+import AddWorkoutSessionList from './components/AddWorkoutSessionList'
 //import MaterialTable from 'material-table';
 //api
-import { WorkoutSessionService } from '../../services'
-import axios from 'axios'
+import { WorkoutProgramService, WorkoutSessionService, TrainerService } from '../../services/api'
 
+//jwt authen
+import { isJWTValid, getTrainerIdFromJWT } from '../../utils/jwt'
 
 const useStyles = makeStyles(theme => ({
     root: {
         backgroundColor: theme.palette.background.default,
-
+        width: '100%',
         padding: theme.spacing(4)
     },
     grid: {
@@ -92,7 +93,7 @@ const useStyles = makeStyles(theme => ({
         paddingLeft: 100,
         paddingRight: 100,
         paddingBottom: 125,
-        flexBasis: 700,
+        flexBasis: 900,
         [theme.breakpoints.down('sm')]: {
             paddingLeft: theme.spacing(2),
             paddingRight: theme.spacing(2)
@@ -114,6 +115,10 @@ const useStyles = makeStyles(theme => ({
     },
     signUpButton: {
         margin: theme.spacing(2, 0)
+    },
+    deleteButton: {
+        color: theme.palette.error.main,
+        margin: theme.spacing(2, 0)
     }
 }));
 
@@ -130,55 +135,31 @@ const schema = {
             maximum: 32
         }
     },
-    muscleLevel: {
-        presence: { allowEmpty: false, message: 'is required' },
-        length: {
-            maximum: 32
-        }
-    },
-    cardioLevel: {
-        presence: { allowEmpty: false, message: 'is required' },
-        length: {
-            maximum: 32
-        }
-    },
-    // password: {
-    //     presence: { allowEmpty: false, message: 'is required' },
-    //     length: {
-    //         maximum: 128
-    //     }
-    // },
-    // policy: {
-    //     presence: { allowEmpty: false, message: 'is required' },
-    //     checked: true
-    // }
 };
 
 let WorkoutProgramEdit = (props) => {
     const { history } = props;
-
+    const { id } = useParams()
     const classes = useStyles();
 
+    const [isAuth, setIsAuth] = useState(true)
+    const [loading, setLoading] = useState(true)
+
     const [values, setValues] = useState({
-        title: 'Nawang',
+        id: undefined,
+        title: 'Workout Program not found!',
         type: '',
-        imagePath: '',
-        videoPath: '',
-        cardioLevel: 0,
-        muscleLevel: 0,
-        mainInfo: '',
-        time: 0,
-        repetition: 0,
-        set: 0,
-        kg: 0,
-        workoutSessionId: 0,
+        selectedWorkoutSessionOptionValue: 0,
+        selectedWorkoutSession: 0,
         isValid: false,
         values: {},
         touched: {},
-        errors: {}
+        errors: {},
+        trainerId: 0,
     })
 
-    const [exerciseIds, setExerciseIds] = useState([])
+    const [workoutSessions, setWorkoutSessions] = useState([])
+    const [addWorkoutSessions, setAddWorkoutSessions] = useState([])
 
     const selections = {
         types:
@@ -192,15 +173,15 @@ let WorkoutProgramEdit = (props) => {
                     label: 'Build Muscle'
                 },
                 {
-                    value: 'cardio',
-                    label: 'Increase Cardio'
+                    value: 'stamina',
+                    label: 'Increase Stamina'
                 },
                 {
-                    value: 'stayFit',
-                    label: 'Stay Fit'
+                    value: 'strength',
+                    label: 'Build Strength'
                 },
                 {
-                    value: 'burnFat',
+                    value: 'fat',
                     label: 'Burn Fat'
                 }
             ]
@@ -229,50 +210,117 @@ let WorkoutProgramEdit = (props) => {
             label: '5 Level'
         }
         ]
-        , workoutSessions: [
+        , addWorkoutSession: [
             {
                 value: '',
                 label: ''
-            },
-            {
-                value: 1,
-                label: '1 Workout Session',
-                type: 'reps',
-                muscleLevel: 5,
-                cardioLevel: 2
-
-
-            },
-            {
-                value: 2,
-                label: '2 Workout Session',
-                type: 'time',
-                muscleLevel: 2,
-                cardioLevel: 4
-            },
-            {
-                value: 3,
-                label: '3 Workout Session',
-                type: 'reps',
-                muscleLevel: 4,
-                cardioLevel: 2
             },
             {
                 value: 4,
                 label: '4 Workout Session',
                 type: 'reps',
                 muscleLevel: 5,
+                cardioLevel: 2
+
+
+            },
+            {
+                value: 8,
+                label: '8 Workout Session',
+                type: 'time',
+                muscleLevel: 2,
+                cardioLevel: 4
+            },
+            {
+                value: 9,
+                label: '9 Workout Session',
+                type: 'reps',
+                muscleLevel: 4,
+                cardioLevel: 2
+            },
+            {
+                value: 11,
+                label: '11 Workout Session',
+                type: 'reps',
+                muscleLevel: 5,
                 cardioLevel: 3
             },
             {
-                value: 5,
-                label: '5 Workout Session',
+                value: 55,
+                label: '55 Workout Session',
                 type: 'time',
                 muscleLevel: 3,
                 cardioLevel: 2
             }
         ]
     }
+
+    useEffect(() => {
+        if (isAuth) {
+            TrainerService.getTrainerByUserId(getTrainerIdFromJWT())
+                .then((res) => {
+                    console.log('Trainer Id: ' + res.id)
+                    setValues(values => ({
+                        ...values,
+                        trainerId: res.id
+                    }));
+                }).catch((e) => console.log('trainer not found'))
+        }
+    }, [isAuth])
+
+
+
+    useEffect(() => {
+        if (loading) {
+            WorkoutProgramService.getWorkoutProgramById(id)
+                .then((res) => {
+                    console.log(res)
+                    setValues({
+                        ...values, ...res, trainerId: res.trainer.id, values: {
+                            title: res.title,
+                            type: res.type,
+                        }
+                    })
+                }).catch(error => {
+                    console.log(error)
+                    history.push('/workoutprograms')
+                })
+        }
+    }, [])
+
+
+    useEffect(() => {
+        if (loading) {
+            WorkoutSessionService.getWorkoutSessionsByAvailable()
+                .then((res) => {
+                    console.log(res)
+                    setWorkoutSessions([{ title: '', id: '' }, ...res])
+                    //setValues({ ...values, ...data })
+                }).catch(error => {
+                    console.log(error)
+                    history.push('/workoutprograms')
+                })
+        }
+    }, [values.trainerId])
+
+
+
+    useEffect(() => {
+        if (loading) {
+            WorkoutSessionService.getWorkoutSessionsByWorkoutProgram(id)
+                .then((res) => {
+                    //setValues({ ...values, ...data, exerciseFulls: [...exerciseFulls] })
+
+                    setAddWorkoutSessions(res)
+                }).catch(error => {
+                    console.log(error)
+                    history.push('/workoutprograms')
+                })
+        }
+    }, [])
+
+
+
 
 
     useEffect(() => {
@@ -285,61 +333,35 @@ let WorkoutProgramEdit = (props) => {
         }));
 
         console.log('workout program')
-        axios.get("http://127.0.0.1:3001/api/users")
-            .then((response) => {
-                if (response.status === 200) {
-                    console.log(response.data)
-                }
-            }).catch((error) => {
-                console.log(error)
-            })
+
     }, [values.values]);
 
 
-    const addExerciseToWorkoutSession = (e) => {
+    const addWorkoutSessionToWorkoutProgram = (e) => {
 
         e.preventDefault()
 
-        let newExercise = {
-            id: values.workoutSessionId
-            , title: selections.workoutSessions[values.workoutSessionId].label
-            , type: selections.workoutSessions[values.workoutSessionId].type
-            , muscleLevel: selections.workoutSessions[values.workoutSessionId].muscleLevel
-            , cardioLevel: selections.workoutSessions[values.workoutSessionId].cardioLevel
+        console.log(addWorkoutSessions.findIndex(x => x.id === values.selectedWorkoutSession.id))
+        if (addWorkoutSessions.findIndex(x => x.id === values.selectedWorkoutSession.id) === -1) {
+            let newData = [...addWorkoutSessions]
+            newData.push(values.selectedWorkoutSession)
+            setAddWorkoutSessions(newData)
+        } else {
+            console.log('session already exist')
         }
-
-        let newData = [...exerciseIds]
-        newData.push(newExercise)
-        setExerciseIds(newData)
     }
 
-    const deleteExercise = (e, id) => {
+    const deleteWorkoutSession = (e, id) => {
         e.preventDefault()
-        exerciseIds.forEach((exercise, i) => {
-
-
-            if (parseInt(exercise.id) === parseInt(id)) {
-                let newArr = [...exerciseIds]
+        addWorkoutSessions.forEach((workoutSession, i) => {
+            if (parseInt(workoutSession.id) === parseInt(id)) {
+                let newArr = [...addWorkoutSessions]
                 if (i > -1) {
                     newArr.splice(i, 1)
-                    setExerciseIds(newArr)
+                    setAddWorkoutSessions(newArr)
                 }
             }
         });
-    }
-
-    const handleImage = (publicId) => {
-        setValues({
-            ...values,
-            imagePath: publicId
-        })
-    }
-
-    const handleVideo = (publicId) => {
-        setValues({
-            ...values,
-            videoPath: publicId
-        })
     }
 
     const handleChange = event => {
@@ -366,43 +388,54 @@ let WorkoutProgramEdit = (props) => {
         }));
     };
 
-    const saveWorkoutSession = async (e) => {
-        e.preventDefault()
-        //TODO save exercise to db
-        let data = {
-            trainerId: 1,
-            title: values.title,
-            type: values.type,
-            muscleLevel: values.muscleLevel,
-            cardioLevel: values.cardioLevel,
-            workoutSessionIds: [1, 2, 46, 24, 12]
-        }
 
-        //WorkoutSessionService.createWorkoutSession(data)
+    const handleChangeSelect = (event) => {
+        event.persist();
 
-        await axios.post("http://127.0.0.1:1234/test", {}, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json'
-            }
+        setValues({
+            ...values,
+            selectedWorkoutSession: workoutSessions[event.target.value],
+            selectedWorkoutSessionOptionValue: event.target.value
         })
-            .then((response) => {
-                if (response.status === 200) {
-                    console.log(response.data)
-                }
-            }).catch((error) => {
-                console.log(error)
-
-            })
     }
 
     const handleBack = () => {
         history.goBack();
     };
 
-    const handleSignUp = event => {
+    const handleSubmit = event => {
         event.preventDefault();
-        history.push('/');
+
+        let bodyUpdate = {
+            title: values.title,
+            type: values.type,
+            workoutProgramId: id,
+            workoutSessions: addWorkoutSessions
+        }
+
+        let bodyCreate = {
+            trainerId: values.trainerId,
+            title: values.title,
+            type: values.type,
+            workoutSessions: addWorkoutSessions
+        }
+
+        //WorkoutProgramService.createWorkoutProgram(data)
+
+        if (id === undefined) {
+            WorkoutProgramService.createWorkoutProgram(bodyCreate)
+                .then((res) => {
+                    console.log(res)
+                    history.push("/workoutprograms")
+                }).catch((e) => console.log('failed saved'))
+        } else {
+            console.log("updated")
+            WorkoutProgramService.updateWorkoutProgram(bodyUpdate)
+                .then((res) => {
+                    console.log(res)
+                    history.push("/workoutprograms")
+                }).catch((e) => console.log('failed saved'))
+        }
     };
 
     const hasError = field =>
@@ -429,7 +462,7 @@ let WorkoutProgramEdit = (props) => {
                         <div className={classes.contentBody}>
                             <form
                                 className={classes.form}
-                                onSubmit={handleSignUp}
+                                onSubmit={handleSubmit}
                             >
                                 <Typography
                                     className={classes.title}
@@ -491,7 +524,7 @@ let WorkoutProgramEdit = (props) => {
                             </Typography>
 
                                 {/* //list of added workout session */}
-                                <AddExerciseList workoutSessions={exerciseIds} deleteExercise={deleteExercise} />
+                                <AddWorkoutSessionList workoutSessions={addWorkoutSessions} deleteWorkoutSession={deleteWorkoutSession} />
                                 {/* end of list of workout session */}
 
                                 <Grid
@@ -506,21 +539,21 @@ let WorkoutProgramEdit = (props) => {
                                             fullWidth
                                             label="Select Workout Session"
                                             margin="dense"
-                                            name="workoutSessionId"
-                                            onChange={handleChange}
+                                            name="selectedWorkoutSession"
+                                            onChange={handleChangeSelect}
                                             required
                                             select
                                             // eslint-disable-next-line react/jsx-sort-props
                                             SelectProps={{ native: true }}
-                                            value={values.workoutSessionId}
+                                            value={values.selectedWorkoutSessionOptionValue}
                                             variant="outlined"
                                         >
-                                            {selections.workoutSessions.map(option => (
+                                            {workoutSessions.map((option, id) => (
                                                 <option
-                                                    key={option.value}
-                                                    value={option.value}
+                                                    key={id}
+                                                    value={id}
                                                 >
-                                                    {option.label}
+                                                    {option.title} - {option.type}
                                                 </option>
                                             ))}
                                         </TextField>
@@ -538,7 +571,7 @@ let WorkoutProgramEdit = (props) => {
                                             size="large"
                                             type="submit"
                                             variant="outlined"
-                                            onClick={(e) => addExerciseToWorkoutSession(e)}
+                                            onClick={(e) => addWorkoutSessionToWorkoutProgram(e)}
                                         >
                                             Add
                                         </Button>
@@ -553,10 +586,21 @@ let WorkoutProgramEdit = (props) => {
                                     size="large"
                                     type="submit"
                                     variant="contained"
-                                    onClick={(e) => saveWorkoutSession(e)}
                                 >
                                     SAVE Workout Session
                     </Button>
+                                {id !== undefined &&
+                                    <Button
+                                        className={classes.deleteButton}
+                                        color="warning"
+                                        fullWidth
+                                        size="large"
+                                        variant="contained"
+                                    >
+                                        Delete
+                                </Button>
+                                }
+
 
                             </form>
                         </div>

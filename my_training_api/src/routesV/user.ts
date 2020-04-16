@@ -10,6 +10,7 @@ userRouter
     .get('/', UserController.all)
     .get('/:id', UserController.one)
     .post('/', UserController.save)
+    .post('/update', UserController.update)
     .delete('/:id', UserController.remove)
 
 // export const userRoueter = [{

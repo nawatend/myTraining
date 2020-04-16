@@ -37,7 +37,6 @@ export class WorkoutProgram {
   @JoinTable()
   workoutSessions: WorkoutSession[];
 
-
   @Column()
   @CreateDateColumn()
   createdAt: Date;

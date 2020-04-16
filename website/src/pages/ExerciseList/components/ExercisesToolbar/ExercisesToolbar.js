@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/styles'
 import { Button } from '@material-ui/core'
 
 import { SearchInput } from 'components'
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -31,7 +32,13 @@ const useStyles = makeStyles(theme => ({
 const UsersToolbar = props => {
   const { className, ...rest } = props
 
+  const history = useHistory()
   const classes = useStyles()
+
+  const handleAdd = (e) => {
+   
+    history.push("/exercises/create")
+  }
 
   return (
     <div
@@ -40,13 +47,13 @@ const UsersToolbar = props => {
     >
       <div className={classes.row}>
         <span className={classes.spacer} />
-        <Button className={classes.importButton}>Import</Button>
-        <Button className={classes.exportButton}>Export</Button>
+
         <Button
           color="primary"
           variant="contained"
+          onClick={handleAdd}
         >
-          Add user
+          Add exercise
         </Button>
       </div>
       <div className={classes.row}>

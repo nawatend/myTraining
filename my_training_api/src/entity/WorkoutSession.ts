@@ -35,6 +35,15 @@ export class WorkoutSession {
   @ManyToOne(type => WorkoutProgram, workoutProgram => workoutProgram.workoutSessions)
   workoutProgram: WorkoutProgram;
 
+  @Column("int")
+  cardioLevel: number;
+
+  @Column("int")
+  muscleLevel: number;
+
+  @Column()
+  imageName: string;
+
   @OneToMany(type => ExerciseFull, exerciseFull => exerciseFull.workoutSession)
   exerciseFulls: ExerciseFull[]
 

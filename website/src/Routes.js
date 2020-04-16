@@ -6,7 +6,11 @@ import { Main as MainLayout, Minimal as MinimalLayout } from './layouts';
 
 import {
   Dashboard as DashboardView,
-  WorkoutSessionsList as WorkoutSessionsListView,
+
+  WorkoutSessionEdit as WorkoutSessionEditView,
+  WorkoutSessionList as WorkoutSessionListView,
+  WorkoutSessionDetail as WorkoutSessionDetailView,
+
   UserList as UserListView,
   //Typography as TypographyView,
   //Icons as IconsView,
@@ -14,11 +18,15 @@ import {
   //Settings as SettingsView,
   SignUp as SignUpView,
   SignIn as SignInView,
-  //NotFound as NotFoundView
+  NotFound as NotFoundView,
 
+  ExerciseList as ExerciseListView,
   ExerciseEdit as ExerciseEditView,
-  WorkoutSessionEdit as WorkoutSessionEditView,
-  WorkoutProgramEdit as WorkoutProgramEditView
+  ExerciseDetail as ExerciseDetailView,
+
+  WorkoutProgramDetail as WorkoutProgramDetailView,
+  WorkoutProgramEdit as WorkoutProgramEditView,
+  WorkoutProgramList as WorkoutProgramListView
 } from './pages';
 
 const Routes = () => {
@@ -48,21 +56,35 @@ const Routes = () => {
         path="/feedbacks"
       />
       <RouteWithLayout
-        component={WorkoutSessionsListView}
+        component={WorkoutSessionListView}
         exact
         layout={MainLayout}
         path="/workoutsessions"
       />
-<RouteWithLayout
+      <RouteWithLayout
         component={WorkoutSessionEditView}
         exact
         layout={MainLayout}
-        path="/workoutsession/create"
+        path="/workoutsessions/create"
+      />
+
+      <RouteWithLayout
+        component={WorkoutSessionEditView}
+        exact
+        layout={MainLayout}
+        path="/workoutsessions/edit/:id"
+      />
+
+      <RouteWithLayout
+        component={WorkoutSessionDetailView}
+        exact
+        layout={MainLayout}
+        path="/workoutsessions/detail/:id"
       />
 
       {/* exercises pages */}
       <RouteWithLayout
-        component={WorkoutSessionsListView}
+        component={ExerciseListView}
         exact
         layout={MainLayout}
         path="/exercises"
@@ -71,20 +93,48 @@ const Routes = () => {
         component={ExerciseEditView}
         exact
         layout={MainLayout}
-        path="/exercises/:id"
+        path="/exercises/create"
       />
 
-<RouteWithLayout
-        component={WorkoutSessionsListView}
+      <RouteWithLayout
+        component={ExerciseEditView}
+        exact
+        layout={MainLayout}
+        path="/exercises/edit/:id"
+      />
+
+      <RouteWithLayout
+        component={ExerciseDetailView}
+        exact
+        layout={MainLayout}
+        path="/exercises/detail/:id"
+      />
+
+      <RouteWithLayout
+        component={WorkoutProgramListView}
         exact
         layout={MainLayout}
         path="/workoutprograms"
       />
+      <RouteWithLayout
+        component={WorkoutProgramEditView}
+        exact
+        layout={MainLayout}
+        path="/workoutprograms/create"
+      />
+
 <RouteWithLayout
         component={WorkoutProgramEditView}
         exact
         layout={MainLayout}
-        path="/workoutprogram/create"
+        path="/workoutprograms/edit/:id"
+      />
+
+      <RouteWithLayout
+        component={WorkoutProgramDetailView}
+        exact
+        layout={MainLayout}
+        path="/workoutprograms/detail/:id"
       />
 
       {/* <RouteWithLayout
@@ -123,12 +173,19 @@ const Routes = () => {
         layout={MinimalLayout}
         path="/sign-in"
       />
-      {/* <RouteWithLayout
+
+      <RouteWithLayout
+        component={SignInView}
+        exact
+        layout={MinimalLayout}
+        path="/sign-out"
+      />
+      <RouteWithLayout
         component={NotFoundView}
         exact
         layout={MinimalLayout}
         path="/not-found"
-      /> */}
+      />
       <Redirect to="/not-found" />
     </Switch>
   );

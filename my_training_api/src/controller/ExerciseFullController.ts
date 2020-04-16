@@ -33,6 +33,17 @@ export class ExerciseFullController {
     }
   }
 
+  static allByWorkoutSession = async (request: Request, response: Response, next: NextFunction) => {
+
+    const result = getRepository(ExerciseFull).find({ relations: ["exerciseBase"], where: { workoutSession: request.params.workoutSessionId } });
+    if (result instanceof Promise) {
+      result.then(result => result !== null && result !== undefined ? response.send(result) : undefined);
+
+    } else if (result !== null && result !== undefined) {
+      response.json(result);
+    }
+  }
+
   static save = async (request: Request, response: Response, next: NextFunction) => {
 
 

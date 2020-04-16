@@ -23,7 +23,9 @@ export class UserController {
 
     static one = async (request: Request, response: Response, next: NextFunction) => {
 
-        const result = getRepository(User).findOne(request.params.id);
+        const result = getRepository(User).findOne(request.params.id, {
+            select: ["id", "email", "role", "age", "fullName", "imageName", "createdAt"]
+        });
         if (result instanceof Promise) {
             result.then(result => result !== null && result !== undefined ? response.send(result) : undefined);
 
@@ -34,14 +36,8 @@ export class UserController {
 
     static save = async (request: Request, response: Response, next: NextFunction) => {
 
-        let { email, password, role, age, fullName, imageName, gender, goal, height, weight, trainerDescription, trainerFocus } = request.body;
+        let { email, password, role, age, fullName, imageName, gender, goal, height, weight, description, focus } = request.body;
         let user = new User();
-
-
-
-
-
-
 
         //assigned value to new user
         user.email = email
@@ -57,7 +53,7 @@ export class UserController {
 
         const userRepository = getRepository(User);
         const sporterRepository = getRepository(Sporter);
-
+        const trainerRepo = getRepository(Trainer)
         try {
             await userRepository.save(user);
 
@@ -71,6 +67,67 @@ export class UserController {
             }
             if (role === "trainer") {
                 let trainer = new Trainer()
+                console.log('trainer')
+                trainer.description = description
+                trainer.focus = focus
+                trainer.user = user
+                await trainerRepo.save(trainer)
+            }
+
+        } catch (e) {
+            response.status(409).send("email already in use");
+            return;
+        }
+
+        //If everything is fine, send 201 = CREATED
+        response.status(201).send("User created");
+    }
+
+    static update = async (request: Request, response: Response, next: NextFunction) => {
+
+        let { userId, trainerId, sporterId, email, password, role, age, fullName, imageName, gender, goal, height, weight, description, focus } = request.body;
+        let user = new User();
+
+        //assigned value to old user
+        user.id = userId
+        user.email = email
+
+        user.age = age
+        user.fullName = fullName
+        user.role = role
+        user.imageName = imageName
+        user.gender = gender
+
+        //encrytped password to db
+        if (password !== '') {
+            user.password = password
+            user.hashPassword();
+        }
+
+
+        const userRepository = getRepository(User);
+        const sporterRepository = getRepository(Sporter);
+        const trainerRepo = getRepository(Trainer)
+        try {
+            await userRepository.save(user);
+
+            if (role === "sporter") {
+                let sporter = new Sporter();
+                sporter.id = sporterId
+                sporter.goal = goal
+                sporter.height = height
+                sporter.weight = weight
+                sporter.user = user
+                await sporterRepository.save(sporter)
+            }
+            if (role === "trainer") {
+                let trainer = new Trainer()
+                trainer.id = trainerId
+                console.log('trainer')
+                trainer.description = description
+                trainer.focus = focus
+                trainer.user = user
+                await trainerRepo.save(trainer)
             }
 
         } catch (e) {

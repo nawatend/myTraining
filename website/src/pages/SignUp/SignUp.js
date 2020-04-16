@@ -15,17 +15,26 @@ import {
 } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
+//api services
+import { UserService } from '../../services/api'
+
 const schema = {
-  firstName: {
+  fullName: {
     presence: { allowEmpty: false, message: 'is required' },
     length: {
-      maximum: 32
+      maximum: 64
     }
   },
-  lastName: {
+  focus: {
     presence: { allowEmpty: false, message: 'is required' },
     length: {
-      maximum: 32
+      maximum: 100
+    }
+  },
+  description: {
+    presence: { allowEmpty: false, message: 'is required' },
+    length: {
+      maximum: 255
     }
   },
   email: {
@@ -42,7 +51,7 @@ const schema = {
     }
   },
   policy: {
-    presence: { allowEmpty: false, message: 'is required' },
+    presence: { allowEmpty: true, message: 'is required' },
     checked: true
   }
 };
@@ -90,7 +99,8 @@ const useStyles = makeStyles(theme => ({
   content: {
     height: '100%',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    overflowY: 'auto'
   },
   contentHeader: {
     display: 'flex',
@@ -187,12 +197,37 @@ const SignUp = props => {
 
   const handleSignUp = event => {
     event.preventDefault();
-    history.push('/');
+
+    let userData = {
+      fullName: formState.values.fullName,
+      email: formState.values.email,
+      role: 'trainer',
+      age: 34,
+      gender: 'male',
+      imageName: 'test.jpg',
+      password: formState.values.password,
+      focus: formState.values.focus,
+      description: formState.values.description,
+      weight: 0,
+      height: 0,
+      goals: 'none'
+    }
+    UserService.createUser(userData)
+      .then((response) => {
+        console.log(response)
+        history.push("/")
+      }).catch((e) => console.log('failed registration'))
+
+
   };
 
   const hasError = field =>
     formState.touched[field] && formState.errors[field] ? true : false;
 
+
+  const register = (e) => {
+
+  }
   return (
     <div className={classes.root}>
       <Grid
@@ -261,32 +296,50 @@ const SignUp = props => {
                 </Typography>
                 <TextField
                   className={classes.textField}
-                  error={hasError('firstName')}
+                  error={hasError('fullName')}
                   fullWidth
                   helperText={
-                    hasError('firstName') ? formState.errors.firstName[0] : null
+                    hasError('fullName') ? formState.errors.fullName[0] : null
                   }
-                  label="First name"
-                  name="firstName"
+                  label="Full name"
+                  name="fullName"
                   onChange={handleChange}
                   type="text"
-                  value={formState.values.firstName || ''}
+                  value={formState.values.fullName || ''}
                   variant="outlined"
                 />
                 <TextField
                   className={classes.textField}
-                  error={hasError('lastName')}
+                  error={hasError('focus')}
                   fullWidth
                   helperText={
-                    hasError('lastName') ? formState.errors.lastName[0] : null
+                    hasError('focus') ? formState.errors.focus[0] : null
                   }
-                  label="Last name"
-                  name="lastName"
+                  label="Focus"
+                  name="focus"
                   onChange={handleChange}
                   type="text"
-                  value={formState.values.lastName || ''}
+                  value={formState.values.focus || ''}
                   variant="outlined"
                 />
+
+                <TextField
+                  className={classes.textField}
+                  error={hasError('description')}
+                  fullWidth
+                  helperText={
+                    hasError('description') ? formState.errors.description[0] : null
+                  }
+                  label="Description"
+                  name="description"
+                  onChange={handleChange}
+                  type="text"
+                  value={formState.values.description || ''}
+                  variant="outlined"
+                  multiline
+                  rows="6"
+                />
+
                 <TextField
                   className={classes.textField}
                   error={hasError('email')}
@@ -353,6 +406,7 @@ const SignUp = props => {
                   size="large"
                   type="submit"
                   variant="contained"
+
                 >
                   Sign up now
                 </Button>

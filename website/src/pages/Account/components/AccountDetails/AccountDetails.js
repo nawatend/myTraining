@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
@@ -10,8 +10,14 @@ import {
   Divider,
   Grid,
   Button,
-  TextField
+  TextField,
+  Typography
 } from '@material-ui/core';
+
+//api
+import { ExerciseBaseService, TrainerService } from '../../../../services/api'
+//jwt authen
+import { isJWTValid, getTrainerIdFromJWT } from '../../../../utils/jwt'
 
 const useStyles = makeStyles(() => ({
   root: {}
@@ -22,14 +28,50 @@ const AccountDetails = props => {
 
   const classes = useStyles();
 
+
   const [values, setValues] = useState({
-    firstName: 'Shen',
-    lastName: 'Zhi',
-    email: 'shen.zhi@devias.io',
-    phone: '',
-    state: 'Alabama',
-    country: 'USA'
+    fullName: '',
+    focus: '',
+    email: '',
+    description: '',
+    gender: '',
+    age: '88',
+    password: '',
+    confirmPassword: '',
+    trainerId: '',
+    userId: '',
+    sporterId: '',
+    imageName: 'skr_odh78c',
+    goal: '',
+    height: '',
+    weight: '',
+    role: 'trainer',
+
   });
+
+  // const [trainerId, setTrainerId] = useState(null)
+  useEffect(() => {
+
+    TrainerService.getTrainerByUserId(getTrainerIdFromJWT())
+      .then((res) => {
+        console.log(res)
+
+        setValues({
+          ...values,
+          userId: res.user.id,
+          trainerId: res.id,
+          fullName: res.user.fullName,
+          email: res.user.email,
+          gender: res.user.gender,
+          description: res.description,
+          focus: res.focus,
+          age: res.user.age
+        })
+      }).catch((e) => console.log('trainer not found'))
+
+  }, [])
+
+
 
   const handleChange = event => {
     setValues({
@@ -38,18 +80,23 @@ const AccountDetails = props => {
     });
   };
 
-  const states = [
+  const handleSave = event => {
+    event.preventDefault()
+
+    TrainerService.updateTrainer(values)
+      .then((res) => {
+        console.log(res)
+      }).catch(e => console.log(e))
+  }
+
+  const genders = [
     {
-      value: 'alabama',
-      label: 'Alabama'
+      value: 'female',
+      label: 'Female'
     },
     {
-      value: 'new-york',
-      label: 'New York'
-    },
-    {
-      value: 'san-francisco',
-      label: 'San Francisco'
+      value: 'male',
+      label: 'Male'
     }
   ];
 
@@ -79,29 +126,13 @@ const AccountDetails = props => {
             >
               <TextField
                 fullWidth
-                helperText="Please specify the first name"
-                label="First name"
+                helperText="Please specify the full name"
+                label="Full name"
                 margin="dense"
-                name="firstName"
+                name="fullName"
                 onChange={handleChange}
                 required
-                value={values.firstName}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid
-              item
-              md={6}
-              xs={12}
-            >
-              <TextField
-                fullWidth
-                label="Last name"
-                margin="dense"
-                name="lastName"
-                onChange={handleChange}
-                required
-                value={values.lastName}
+                value={values.fullName}
                 variant="outlined"
               />
             </Grid>
@@ -123,18 +154,37 @@ const AccountDetails = props => {
             </Grid>
             <Grid
               item
-              md={6}
+              md={12}
               xs={12}
             >
               <TextField
                 fullWidth
-                label="Phone Number"
+                label="Focus"
                 margin="dense"
-                name="phone"
+                name="focus"
                 onChange={handleChange}
-                type="number"
-                value={values.phone}
+                required
+                value={values.focus}
                 variant="outlined"
+              />
+            </Grid>
+
+            <Grid
+              item
+              md={12}
+              xs={12}
+            >
+              <TextField
+                fullWidth
+                label="Description"
+                margin="dense"
+                name="description"
+                onChange={handleChange}
+                type="text"
+                value={values.description}
+                variant="outlined"
+                multiline
+                rows="6"
               />
             </Grid>
             <Grid
@@ -144,18 +194,18 @@ const AccountDetails = props => {
             >
               <TextField
                 fullWidth
-                label="Select State"
+                label="Select Gender"
                 margin="dense"
-                name="state"
+                name="gender"
                 onChange={handleChange}
                 required
                 select
                 // eslint-disable-next-line react/jsx-sort-props
                 SelectProps={{ native: true }}
-                value={values.state}
+                value={values.gender}
                 variant="outlined"
               >
-                {states.map(option => (
+                {genders.map(option => (
                   <option
                     key={option.value}
                     value={option.value}
@@ -165,6 +215,7 @@ const AccountDetails = props => {
                 ))}
               </TextField>
             </Grid>
+
             <Grid
               item
               md={6}
@@ -172,15 +223,65 @@ const AccountDetails = props => {
             >
               <TextField
                 fullWidth
-                label="Country"
+                label="Age"
                 margin="dense"
-                name="country"
+                name="age"
                 onChange={handleChange}
                 required
-                value={values.country}
+                value={values.age}
                 variant="outlined"
               />
             </Grid>
+            <Grid
+              item
+              md={12}
+              xs={12}
+            >
+
+              <Typography
+
+                variant="h6"
+              >
+                Reset Password
+            </Typography>
+            </Grid>
+            <Grid
+              item
+              md={6}
+              xs={12}
+            >
+              <TextField
+                fullWidth
+                required
+                margin="dense"
+                label="Password"
+                name="password"
+                onChange={handleChange}
+                type="password"
+                value={values.password || ''}
+                variant="outlined"
+              />
+            </Grid>
+
+            <Grid
+              item
+              md={6}
+              xs={12}
+            >
+              <TextField
+                fullWidth
+                required
+                margin="dense"
+                label="Confirm Password"
+                name="confirm-password"
+                onChange={handleChange}
+                type="password"
+                value={values.confirmPassword || ''}
+                variant="outlined"
+              />
+            </Grid>
+
+
           </Grid>
         </CardContent>
         <Divider />
@@ -188,6 +289,7 @@ const AccountDetails = props => {
           <Button
             color="primary"
             variant="contained"
+            onClick={handleSave}
           >
             Save details
           </Button>

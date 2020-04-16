@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import moment from 'moment';
@@ -53,15 +53,29 @@ let ImageUpload = (props) => {
   const { className, ...rest } = props;
 
   const [completedUpload, setCompletedUpload] = useState(0)
-  const [images, setImages] = useState([])
+  const [image, setImage] = useState()
   const classes = useStyles();
+
+
+
+  useEffect(() => {
+    if (props.image !== '') {
+      setCompletedUpload(100)
+      setImage(props.image)
+    }
+
+  }, [props.image])
 
   const beginUpload = tag => {
     const uploadOptions = {
       cloudName: "filesmytraining",
       tags: [tag],
       uploadPreset: "file_mt_",
-      folder: 'images'
+      folder: 'images',
+      multiple: false,
+      cropping: true,
+      croppingAspectRatio: 1.65,
+      showSkipCropButton: false
     };
 
     openUploadWidget(uploadOptions, (error, photos) => {
@@ -69,7 +83,7 @@ let ImageUpload = (props) => {
         console.log(photos);
         if (photos.event === 'success') {
           props.onChange(photos.info.public_id)
-          setImages([...images, photos.info.public_id])
+          setImage(photos.info.public_id)
         }
       } else {
         console.log(error);
@@ -107,14 +121,15 @@ let ImageUpload = (props) => {
           xs={12}
         >
           <CloudinaryContext cloudName="filesmytraining">
-
-            {images.map(i => <Image
-              className={classes.image}
-              key={i}
-              publicId={i}
-              fetch-format="auto"
-              quality="auto"
-            />)}
+            {image !== undefined &&
+              <Image
+                className={classes.image}
+                key={image}
+                publicId={image}
+                fetch-format="auto"
+                quality="auto"
+              />
+            }
 
           </CloudinaryContext>
         </Grid>

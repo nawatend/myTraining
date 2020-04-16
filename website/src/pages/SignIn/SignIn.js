@@ -14,6 +14,9 @@ import {
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 
 import { Facebook as FacebookIcon, Google as GoogleIcon } from 'icons'
+//api services
+import { UserService, AuthService } from '../../services/api'
+import checkRole from '../../utils/checkRole'
 
 const schema = {
   email: {
@@ -122,6 +125,9 @@ const useStyles = makeStyles(theme => ({
   },
   signInButton: {
     margin: theme.spacing(2, 0)
+  },
+  error: {
+    color: theme.palette.error.main
   }
 }))
 
@@ -134,7 +140,8 @@ const SignIn = props => {
     isValid: false,
     values: {},
     touched: {},
-    errors: {}
+    errors: {},
+    accessDenied: false
   })
 
   useEffect(() => {
@@ -170,9 +177,21 @@ const SignIn = props => {
     }))
   }
 
+  const showError = (e) => {
+      setFormState({ ...formState, accessDenied: true })
+  }
   const handleSignIn = event => {
     event.preventDefault()
-    history.push('/')
+
+    AuthService.login({ email: formState.values.email, password: formState.values.password })
+      .then(() => {
+        if (checkRole().role === "trainer") {
+          history.push("/")
+        } else {
+          AuthService.logout()
+          throw new Error(401)
+        }
+      }).catch((e) => showError(e))
   }
 
   const hasError = field =>
@@ -195,21 +214,20 @@ const SignIn = props => {
                 className={classes.quoteText}
                 variant="h1"
               >
-                Hella narwhal Cosby sweater McSweeney's, salvia kitsch before
-                they sold out High Life.
+                HellaLouuya Nawang is here to save the day!
               </Typography>
               <div className={classes.person}>
                 <Typography
                   className={classes.name}
                   variant="body1"
                 >
-                  Takamaru Ayako
+                  Nawang Tendar
                 </Typography>
                 <Typography
                   className={classes.bio}
                   variant="body2"
                 >
-                  Manager at inVision
+                  CEO of MyTraining
                 </Typography>
               </div>
             </div>
@@ -307,6 +325,16 @@ const SignIn = props => {
                   value={formState.values.password || ''}
                   variant="outlined"
                 />
+
+                {formState.accessDenied &&
+                  <Typography
+                    className={classes.error}
+                    color="textSecondary"
+                    variant="caption"
+                  >
+                    Access Denied: wrong e-mail and password
+                </Typography>
+                }
                 <Button
                   className={classes.signInButton}
                   color="primary"

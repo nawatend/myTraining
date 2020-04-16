@@ -26,7 +26,7 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 
-import {Check,Delete, Timer,FitnessCenter} from '@material-ui/icons';
+import { Check, Delete, Timer, FitnessCenter } from '@material-ui/icons';
 
 
 
@@ -68,10 +68,10 @@ export default function AddExerciseList(props) {
         <div className={classes.demo}>
           <List dense={dense}>
 
-            {props.exercises.map((exercise, id) => {
+            {props.exerciseFulls.map((exercise, id) => {
 
 
-              if (exercise.type === "time") {
+              if (exercise.exerciseBase.type === "time") {
                 return (
                   <ListItem key={id}>
                     <ListItemAvatar>
@@ -81,7 +81,7 @@ export default function AddExerciseList(props) {
 
                     </ListItemAvatar>
                     <ListItemText
-                      primary={exercise.title}
+                      primary={exercise.exerciseBase.title}
                     />
                     <ListItemText
                       primary="Time"
@@ -103,15 +103,15 @@ export default function AddExerciseList(props) {
 
                     </ListItemAvatar>
                     <ListItemText
-                      primary={exercise.title}
+                      primary={exercise.exerciseBase.title}
                     />
                     <ListItemText
                       primary="Sets"
-                      secondary={secondary ? exercise.set : null}
+                      secondary={secondary ? exercise.sets : null}
                     />
                     <ListItemText
                       primary="Repetition"
-                      secondary={secondary ? exercise.repetition : null}
+                      secondary={secondary ? exercise.reps : null}
                     />
                     <ListItemText
                       primary="Kilogram"

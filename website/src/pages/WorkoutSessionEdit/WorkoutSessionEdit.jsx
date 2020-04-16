@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link as RouterLink, withRouter } from 'react-router-dom';
+import { Link as RouterLink, withRouter, Redirect, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import validate from 'validate.js';
 import { makeStyles } from '@material-ui/styles';
@@ -19,8 +19,12 @@ import VideoUpload from '../../components/UploadFiles/VideoUpload'
 import AddExerciseList from './components/AddExerciseList'
 //import MaterialTable from 'material-table';
 //api
-import { WorkoutSessionService } from '../../services'
-import axios from 'axios'
+import { WorkoutSessionService, ExerciseFullService } from '../../services/api'
+//api
+import { ExerciseBaseService, TrainerService } from '../../services/api'
+
+//jwt authen
+import { isJWTValid, getTrainerIdFromJWT } from '../../utils/jwt'
 
 
 const useStyles = makeStyles(theme => ({
@@ -114,6 +118,10 @@ const useStyles = makeStyles(theme => ({
     },
     signUpButton: {
         margin: theme.spacing(2, 0)
+    },
+    deleteButton: {
+        color: theme.palette.error.main,
+        margin: theme.spacing(2, 0)
     }
 }));
 
@@ -132,53 +140,44 @@ const schema = {
     },
     muscleLevel: {
         presence: { allowEmpty: false, message: 'is required' },
-        length: {
-            maximum: 32
-        }
     },
     cardioLevel: {
         presence: { allowEmpty: false, message: 'is required' },
-        length: {
-            maximum: 32
-        }
-    },
-    // password: {
-    //     presence: { allowEmpty: false, message: 'is required' },
-    //     length: {
-    //         maximum: 128
-    //     }
-    // },
-    // policy: {
-    //     presence: { allowEmpty: false, message: 'is required' },
-    //     checked: true
-    // }
+    }
 };
 
 let WorkoutSessionEdit = (props) => {
     const { history } = props;
 
     const classes = useStyles();
-
+    const { id } = useParams()
+    const [isAuth, setIsAuth] = useState(true)
+    const [loading, setLoading] = useState(true)
     const [values, setValues] = useState({
-        title: 'Nawang',
+        id: -21321,
+        title: 'no-title',
         type: '',
-        imagePath: '',
-        videoPath: '',
+        imageName: '',
         cardioLevel: 0,
         muscleLevel: 0,
-        mainInfo: '',
         time: 0,
         repetition: 0,
         set: 0,
         kg: 0,
-        exerciseId: 0,
+        selectedExerciseOptionValue: 0,
+        selectedExerciseBase: 0,
         isValid: false,
         values: {},
         touched: {},
-        errors: {}
+        errors: {},
+        trainerId: null,
+        workoutProgramId: 0
+
     })
 
-    const [exerciseIds, setExerciseIds] = useState([])
+    const [exerciseBases, setExerciseBases] = useState([])
+    const [exerciseFulls, setExerciseFulls] = useState([])
+
 
     const selections = {
         types:
@@ -192,15 +191,15 @@ let WorkoutSessionEdit = (props) => {
                     label: 'Build Muscle'
                 },
                 {
-                    value: 'cardio',
-                    label: 'Increase Cardio'
+                    value: 'stamina',
+                    label: 'Increase Stamina'
                 },
                 {
-                    value: 'stayFit',
-                    label: 'Stay Fit'
+                    value: 'strength',
+                    label: 'Build Strength'
                 },
                 {
-                    value: 'burnFat',
+                    value: 'fat',
                     label: 'Burn Fat'
                 }
             ]
@@ -266,6 +265,64 @@ let WorkoutSessionEdit = (props) => {
 
 
     useEffect(() => {
+        if (isAuth) {
+            TrainerService.getTrainerByUserId(getTrainerIdFromJWT())
+                .then((res) => {
+                    console.log('Trainer Id: ' + res.id)
+                    setValues(values => ({
+                        ...values,
+                        trainerId: res.id
+                    }));
+                }).catch((e) => console.log('trainer not found'))
+        }
+    }, [isAuth])
+
+
+    useEffect(() => {
+        if (loading) {
+            ExerciseBaseService.getExerciseBasesByTrainer(values.trainerId)
+                .then((res) => {
+                    console.log(res)
+                    setExerciseBases([{ title: '', id: '' }, ...res])
+                }).catch((e) => console.log('bases not found'))
+        }
+    }, [values.trainerId])
+
+    useEffect(() => {
+        if (loading) {
+            ExerciseFullService.getExerciseFullsByWorkoutSession(id)
+                .then((exerciseFulls) => {
+                    //setValues({ ...values, ...data, exerciseFulls: [...exerciseFulls] })
+
+                    setExerciseFulls(exerciseFulls)
+                }).catch(error => {
+                    console.log(error)
+                    history.push('/workoutsessions')
+                })
+        }
+    }, [])
+
+    useEffect(() => {
+        if (id !== undefined) {
+            if (loading) {
+                WorkoutSessionService.getWorkoutSessionById(id)
+                    .then((res) => {
+                        console.log(res)
+                        setValues({
+                            ...values, ...res, trainerId: res.trainer.id, values: {
+                                title: res.title,
+                                type: res.type,
+                                muscleLevel: res.muscleLevel,
+                                cardioLevel: res.cardioLevel
+                            }
+                        })
+                    })
+            }
+        }
+    }, [])
+
+
+    useEffect(() => {
         const errors = validate(values.values, schema);
 
         setValues(values => ({
@@ -274,14 +331,6 @@ let WorkoutSessionEdit = (props) => {
             errors: errors || {}
         }));
 
-        axios.post("http://127.0.0.1:8000/test")
-            .then((response) => {
-                if (response.status === 200) {
-                    console.log(response.data)
-                }
-            }).catch((error) => {
-                console.log(error)
-            })
     }, [values.values]);
 
 
@@ -290,31 +339,35 @@ let WorkoutSessionEdit = (props) => {
         e.preventDefault()
 
         let newExercise = {
-            id: values.exerciseId
-            , title: selections.exercises[values.exerciseId].label
-            , type: selections.exercises[values.exerciseId].type
-            , set: values.set
-            , repetition: values.repetition
-            , kg: values.kg
-            , time: values.time
+            //all new exercise will get -1 for temp
+            id: -1
+            , sets: parseInt(values.set)
+            , reps: parseInt(values.repetition)
+            , kg: parseInt(values.kg)
+            , time: parseInt(values.time)
+            , exerciseBase: { ...values.selectedExerciseBase }
         }
 
-        let newData = [...exerciseIds]
+        console.log(newExercise)
+        let newData = [...exerciseFulls]
         newData.push(newExercise)
-        setExerciseIds(newData)
+        setExerciseFulls(newData)
     }
 
     const deleteExercise = (e, id) => {
         e.preventDefault()
-        exerciseIds.forEach((exercise, i) => {
+        exerciseFulls.forEach((exercise, i) => {
 
 
             if (parseInt(exercise.id) === parseInt(id)) {
-                let newArr = [...exerciseIds]
+                console.log('deleted')
+                let newArr = [...exerciseFulls]
                 if (i > -1) {
                     newArr.splice(i, 1)
-                    setExerciseIds(newArr)
+                    setExerciseFulls(newArr)
                 }
+            } else {
+                console.log('not deleted')
             }
         });
     }
@@ -322,7 +375,7 @@ let WorkoutSessionEdit = (props) => {
     const handleImage = (publicId) => {
         setValues({
             ...values,
-            imagePath: publicId
+            imageName: publicId
         })
     }
 
@@ -357,55 +410,59 @@ let WorkoutSessionEdit = (props) => {
         }));
     };
 
+    const handleChangeSelect = (event) => {
+        event.persist();
+        console.log(event.target.value)
+        setValues({
+            ...values,
+            selectedExerciseBase: exerciseBases[event.target.value],
+            selectedExerciseOptionValue: event.target.value
+        })
+    }
+
     const saveWorkoutSession = async (e) => {
         e.preventDefault()
-        //TODO save exercise to db
-        let data = {}
+        //TODO save workout session to db
+        //TODO change trainerId and workoutProgramId
 
-        if (values.type === "time") {
-            data = {
-                trainerId: 1,
-                title: values.title,
-                type: values.type,
-                muscleLevel: values.muscleLevel,
-                cardioLevel: values.cardioLevel,
-                imagePath: values.imagePath,
-                videoPath: values.videoPath,
-                description: values.description,
-                mainInfo: [{ time: values.time }]
-            }
-        } else {
-            data = {
-                trainerId: 1,
-                title: values.title,
-                type: values.type,
-                muscleLevel: values.muscleLevel,
-                cardioLevel: values.cardioLevel,
-                imagePath: values.imagePath,
-                videoPath: values.videoPath,
-                description: values.description,
-                mainInfo: [{ set: values.set, reps: values.repetition, rest: "2 min" }]
-            }
+
+        let bodyUpdate = {
+            workoutSessionId: id,
+            trainerId: values.trainerId,
+            title: values.title,
+            type: values.type,
+            muscleLevel: values.muscleLevel,
+            cardioLevel: values.cardioLevel,
+            imageName: values.imageName,
+            //workoutProgramId: 4,
+            exerciseBaseIds: exerciseFulls
         }
 
+        let bodyCreate = {
 
+            trainerId: values.trainerId,
+            title: values.title,
+            type: values.type,
+            muscleLevel: values.muscleLevel,
+            cardioLevel: values.cardioLevel,
+            imageName: values.imageName,
+            exerciseBaseIds: exerciseFulls
+        }
 
+        if (id === undefined) {
+            WorkoutSessionService.createWorkoutSession(bodyCreate)
+                .then((res) => {
+                    console.log(res)
+                    history.push("/workoutsessions")
+                }).catch((e) => console.log('failed saved'))
+        } else {
+            WorkoutSessionService.updateWorkoutSession(bodyUpdate)
+                .then((res) => {
+                    console.log(res)
+                    history.push("/workoutsessions")
+                }).catch((e) => console.log('failed saved'))
+        }
         //WorkoutSessionService.createWorkoutSession(data)
-
-        await axios.post("http://127.0.0.1:1234/test", {}, {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json'
-            }
-        })
-            .then((response) => {
-                if (response.status === 200) {
-                    console.log(response.data)
-                }
-            }).catch((error) => {
-                console.log(error)
-
-            })
     }
 
     const handleBack = () => {
@@ -506,7 +563,7 @@ let WorkoutSessionEdit = (props) => {
                                     select
                                     // eslint-disable-next-line react/jsx-sort-props
                                     SelectProps={{ native: true }}
-                                    value={values.cardioLevel}
+                                    value={values.values.cardioLevel}
                                     variant="outlined"
                                 >
                                     {selections.levels.map(option => (
@@ -530,7 +587,7 @@ let WorkoutSessionEdit = (props) => {
                                     select
                                     // eslint-disable-next-line react/jsx-sort-props
                                     SelectProps={{ native: true }}
-                                    value={values.muscleLevel}
+                                    value={values.values.muscleLevel}
                                     variant="outlined"
                                 >
                                     {selections.levels.map(option => (
@@ -550,7 +607,7 @@ let WorkoutSessionEdit = (props) => {
                                 >
                                     Upload Cover Image
                             </Typography>
-                                <ImageUpload onChange={handleImage} />
+                                <ImageUpload onChange={handleImage} image={values.imageName} />
 
 
                                 <Typography
@@ -561,7 +618,7 @@ let WorkoutSessionEdit = (props) => {
                             </Typography>
 
                                 {/* //list of added exercise */}
-                                <AddExerciseList exercises={exerciseIds} deleteExercise={deleteExercise} />
+                                <AddExerciseList exerciseFulls={exerciseFulls} deleteExercise={deleteExercise} />
                                 {/* end of list of added exercise */}
 
                                 <Grid
@@ -577,21 +634,21 @@ let WorkoutSessionEdit = (props) => {
                                             fullWidth
                                             label="Select Exercise"
                                             margin="dense"
-                                            name="exerciseId"
-                                            onChange={handleChange}
+                                            name="selectedExercise"
+                                            onChange={handleChangeSelect}
                                             required
                                             select
                                             // eslint-disable-next-line react/jsx-sort-props
                                             SelectProps={{ native: true }}
-                                            value={values.exerciseId}
+                                            value={values.selectedExerciseOptionValue}
                                             variant="outlined"
                                         >
-                                            {selections.exercises.map(option => (
+                                            {exerciseBases.map((exercise, i) => (
                                                 <option
-                                                    key={option.value}
-                                                    value={option.value}
+                                                    key={exercise.id}
+                                                    value={i}
                                                 >
-                                                    {option.label}
+                                                    {exercise.title}
                                                 </option>
                                             ))}
                                         </TextField>
@@ -600,11 +657,10 @@ let WorkoutSessionEdit = (props) => {
                                         item
                                         xs={12}
                                     >
-
-                                        {selections.exercises[values.exerciseId].type === 'time' ?
+                                        {values.selectedExerciseBase.type === 'time' ?
                                             (<TextField
                                                 className={classes.textField}
-                                                error={hasError('time')}
+                                                //error={hasError('time')}
                                                 fullWidth
                                                 helperText={
                                                     hasError('time') ? values.errors.type[0] : null
@@ -617,7 +673,6 @@ let WorkoutSessionEdit = (props) => {
                                                 variant="outlined"
                                             />)
                                             : (
-
                                                 <Grid
                                                     container
                                                     spacing={2}
@@ -628,7 +683,7 @@ let WorkoutSessionEdit = (props) => {
                                                         xs={6}
                                                     >
                                                         <TextField
-                                                            error={hasError('repetition')}
+                                                            //error={hasError('repetition')}
                                                             helperText={
                                                                 hasError('repetition') ? values.errors.type[0] : null
                                                             }
@@ -648,7 +703,7 @@ let WorkoutSessionEdit = (props) => {
                                                         xs={6}
                                                     >
                                                         <TextField
-                                                            error={hasError('set')}
+                                                            // error={hasError('set')}
                                                             helperText={
                                                                 hasError('set') ? values.errors.type[0] : null
                                                             }
@@ -669,7 +724,7 @@ let WorkoutSessionEdit = (props) => {
                                                     >
                                                         <TextField
 
-                                                            error={hasError('kg')}
+                                                            // error={hasError('kg')}
 
                                                             helperText={
                                                                 hasError('kg') ? values.errors.type[0] : null
@@ -684,7 +739,6 @@ let WorkoutSessionEdit = (props) => {
                                                         />
                                                     </Grid>
                                                 </Grid>
-
                                             )
                                         }
                                     </Grid>
@@ -720,6 +774,17 @@ let WorkoutSessionEdit = (props) => {
                                 >
                                     SAVE Workout Session
                     </Button>
+                                {id !== undefined &&
+                                    <Button
+                                        className={classes.deleteButton}
+                                        color="warning"
+                                        fullWidth
+                                        size="large"
+                                        variant="contained"
+                                    >
+                                        Delete
+                                </Button>
+                                }
 
                             </form>
                         </div>

@@ -1,6 +1,6 @@
 import {
 	axiosInstance
-} from './api'
+} from './api/api'
 
 class WorkoutProgramService {
 

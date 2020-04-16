@@ -5,6 +5,7 @@ import { User } from "./User";
 import { Trainer } from './Trainer'
 import { Rate } from "./Rate";
 import { Progress } from "./Progress";
+import { WorkoutProgram } from "./WorkoutProgram";
 
 @Entity()
 @Unique(["user"])
@@ -20,6 +21,10 @@ export class Sporter {
   @OneToOne(type => Trainer, { nullable: true })
   @JoinColumn()
   trainer: Trainer;
+
+  @OneToOne(type => WorkoutProgram, { nullable: true })
+  @JoinColumn()
+  workoutProgram: WorkoutProgram;
 
   @Column("int", { default: 0 })
   daysTrained: number;
