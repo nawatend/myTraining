@@ -5,7 +5,7 @@ import Timer from '../components/Timer'
 import { Title, SubTitle } from '../components/texts'
 import Return from '../components/Return'
 import Feedback from '../components/Feedback'
-
+import {  withRouter, useHistory } from 'react-router-dom';
 let TodayExercisesPage = (props) => {
 
 
@@ -81,4 +81,4 @@ let TodayExercisesPage = (props) => {
     )
 }
 
-export default BaseLayout(TodayExercisesPage)
+export default withRouter(TodayExercisesPage)

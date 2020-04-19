@@ -5,6 +5,7 @@ import { User } from "./User";
 import { ExerciseBase } from './ExerciseBase'
 import { WorkoutProgram } from './WorkoutProgram'
 import { WorkoutSession } from './WorkoutSession'
+import { Sporter } from "./Sporter";
 @Entity()
 @Unique(["user"])
 export class Trainer {
@@ -21,6 +22,9 @@ export class Trainer {
 
   @Column({ nullable: true })
   focus: string
+
+  @OneToMany(type => Sporter, sporter => sporter.trainer, { cascade: true })
+  sporters: Sporter[]
 
   @OneToMany(type => ExerciseBase, exerciseBase => exerciseBase.trainer, { cascade: true })
   exerciseBases: ExerciseBase[]

@@ -15,6 +15,9 @@ import { MdNavigateBefore, } from "react-icons/md";
 import { useParams } from "react-router-dom";
 import getPageName from '../utils/getPageName'
 
+//api
+import { AuthService, UserService } from '../api'
+
 const useStyles = makeStyles(theme => ({
     root: {
         flexGrow: 1,
@@ -35,9 +38,10 @@ let Header = ({ location, match, history }) => {
     const classes = useStyles();
 
 
-    useEffect(() => {
+    let logout = () => {
+        AuthService.logout()
 
-    })
+    }
 
     return (
         <div className={classes.root}>
@@ -52,7 +56,7 @@ let Header = ({ location, match, history }) => {
                         {(getPageName(match.path) === "") ? "My Training" : getPageName(match.path)}
                     </Typography>
 
-                    <Link to="/auth/login">
+                    <Link to="/auth/login" onClick={logout}>
                         <Button color="inherit">Log out</Button>
                     </Link>
                 </Toolbar>

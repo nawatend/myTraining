@@ -9,20 +9,24 @@ import TodayExercisesPage from '../pages/TodayExercisesPage'
 import WorkoutsPage from '../pages/WorkoutsPage'
 import LoginPage from '../pages/Login'
 import RegisterPage from '../pages/Register';
+
+import BaseLayout from '../layouts/base';
+import { default as RouteWithLayout } from '../components/RouteWithLayout';
+
 let router = () => {
 
     return (
         <Router basename={process.env.PUBLIC_URL}>
             <Switch>
-                <Route exact path="/auth/login" component={LoginPage} title={"Today!"} />
-                <Route exact path="/auth/register" component={RegisterPage} title={"Today!"} />
-                <Route exact path="/" component={HomePage} title={"Today!"} />
-                <Route exact path="/exercisedetail/:exerciseId" component={ExerciseDetailPage} title={"Today!"} />
+                <Route exact path="/auth/login" component={LoginPage} />
+                <Route exact path="/auth/register" component={RegisterPage} />
+                <RouteWithLayout path="/" component={HomePage} exact layout={BaseLayout} />
+                <RouteWithLayout exact layout={BaseLayout} path="/exercisedetail/:exerciseId" component={ExerciseDetailPage} />
 
-                <Route exact path="/today/:workoutsessionId" component={TodayExercisesPage} title={"Today!"} />
-                <Route exact path="/workouts" component={WorkoutsPage} title={"Today!"} />
-                <Route exact path="/progress" component={ProgressPage} title={"Today!"} />
-                <Route exact path="/profile" component={ProfilePage} title={"Today!"} />
+                <RouteWithLayout exact layout={BaseLayout} path="/today/:workoutsessionId" component={TodayExercisesPage} />
+                <RouteWithLayout exact layout={BaseLayout} path="/workouts" component={WorkoutsPage} />
+                <RouteWithLayout exact layout={BaseLayout} path="/progress" component={ProgressPage} />
+                <RouteWithLayout exact layout={BaseLayout} path="/profile" component={ProfilePage} />
             </Switch>
         </Router>
     )

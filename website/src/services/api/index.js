@@ -5,6 +5,7 @@ import ExerciseFullService from './exerciseFull'
 import WorkoutSessionService from './workoutSession'
 import WorkoutProgramService from './workoutProgram'
 import TrainerService from './trainer'
+import SporterService from './sporter'
 export {
 	AuthService,
 	UserService,
@@ -12,5 +13,6 @@ export {
 	ExerciseFullService,
 	WorkoutSessionService,
 	WorkoutProgramService,
-	TrainerService
+	TrainerService,
+	SporterService
 }

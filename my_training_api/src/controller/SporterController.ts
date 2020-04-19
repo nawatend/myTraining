@@ -10,10 +10,9 @@ export class SporterController {
 
   private userRepository = getRepository(Sporter);
 
-
   static all = async (request: Request, response: Response, next: NextFunction) => {
 
-    const result = getRepository(Sporter).find({ relations: ["user"] });
+    const result = getRepository(Sporter).find({ relations: ["user","trainer"], where: { acceptTrainer: false } });
     if (result instanceof Promise) {
       result.then(result => result !== null && result !== undefined ? response.send(result) : undefined);
 
@@ -21,10 +20,21 @@ export class SporterController {
       response.json(result);
     }
   }
+
+  static allByTrainer = async (request: Request, response: Response, next: NextFunction) => {
+    const result = getRepository(Sporter).find({ relations: ["user"], where: { trainer: request.body.trainerId, acceptTrainer: true } });
+    if (result instanceof Promise) {
+      result.then(result => result !== null && result !== undefined ? response.send(result) : undefined);
+
+    } else if (result !== null && result !== undefined) {
+      response.json(result);
+    }
+  }
+
 
   static one = async (request: Request, response: Response, next: NextFunction) => {
 
-    const result = getRepository(Sporter).findOne(request.params.id,{ relations: ["user"] });
+    const result = getRepository(Sporter).findOne(request.params.id, { relations: ["user", 'trainer'] });
     if (result instanceof Promise) {
       result.then(result => result !== null && result !== undefined ? response.send(result) : undefined);
 
@@ -32,6 +42,19 @@ export class SporterController {
       response.json(result);
     }
   }
+
+  static oneByUser = async (request: Request, response: Response, next: NextFunction) => {
+
+    const result = getRepository(Sporter).findOne(request.params.id, { relations: ["user"], where: { user: request.params.userId } });
+    if (result instanceof Promise) {
+      result.then(result => result !== null && result !== undefined ? response.send(result) : undefined);
+
+    } else if (result !== null && result !== undefined) {
+      response.json(result);
+    }
+  }
+
+
 
   static save = async (request: Request, response: Response, next: NextFunction) => {
 
@@ -70,6 +93,54 @@ export class SporterController {
 
     //If everything is fine, send 201 = CREATED
     response.status(201).send("Sporter - User created");
+  }
+
+  static update = async (request: Request, response: Response, next: NextFunction) => {
+
+
+    let { sporterId, trainerId, daysTrained, daysTrainedStreak, weight, height, goal, workoutProgramId, acceptTrainer } = request.body;
+    let sporter = await getRepository(Sporter).findOne(sporterId, { relations: ["user", 'trainer'] });
+
+    sporter.trainer = trainerId
+    sporter.daysTrained = daysTrained
+    sporter.daysTrainedStreak = daysTrainedStreak
+    sporter.weight = weight
+    sporter.height = height
+    sporter.goal = goal
+    sporter.workoutProgram = workoutProgramId
+    sporter.acceptTrainer = acceptTrainer
+
+    const sporterRepository = getRepository(Sporter)
+    try {
+      await sporterRepository.save(sporter)
+    } catch (e) {
+      response.status(409).send("email already in use");
+      return;
+    }
+
+    //If everything is fine, send 201 = CREATED
+    response.status(201).send("Sporter - User created");
+  }
+
+
+  static inviteByTrainer = async (request: Request, response: Response, next: NextFunction) => {
+
+
+    let { sporterId, trainerId, acceptTrainer } = request.body;
+    let sporter = await getRepository(Sporter).findOne(sporterId, { relations: ["user", 'trainer'] });
+
+    sporter.trainer = trainerId
+    sporter.acceptTrainer = acceptTrainer
+
+    const sporterRepository = getRepository(Sporter)
+    try {
+      await sporterRepository.save(sporter)
+    } catch (e) {
+      response.status(409).send("Invite Failed");
+      return;
+    }
+
+    response.status(201).send("Sporter - invite");
   }
 
   static remove = async (request: Request, response: Response, next: NextFunction) => {

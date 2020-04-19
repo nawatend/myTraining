@@ -7,7 +7,7 @@ import mockData from './data'
 import { ExerciseBaseService, TrainerService } from '../../services/api'
 //jwt authen
 import { isJWTValid, getTrainerIdFromJWT } from '../../utils/jwt'
-
+import {filterArrayObjectByTwoKeys} from '../../utils/filter'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -21,8 +21,9 @@ const useStyles = makeStyles(theme => ({
 const ExerciseList = () => {
   const classes = useStyles()
 
- 
+  const [filteredExercises, setFilteredExercises] = useState([])
   const [exercises, setExercises] = useState([])
+  const [searchTerm, setSearchTerm] = useState()
 
   const [trainerId, setTrainerId] = useState(null)
   useEffect(() => {
@@ -46,11 +47,28 @@ const ExerciseList = () => {
   }, [trainerId])
 
 
+  useEffect(() => {
+    setFilteredExercises(exercises)
+  }, [exercises])
+
+
+  useEffect(() => {
+
+    let filteredArray = filterArrayObjectByTwoKeys([...exercises], searchTerm, "title","type")
+    if (filteredArray.length >= 0) {
+      setFilteredExercises(filteredArray)
+    }
+  }, [searchTerm])
+
+  const searchBarOnChange = (e) => {
+    e.preventDefault()
+    setSearchTerm(e.target.value)
+  }
   return (
     <div className={classes.root}>
-      <ExercisesToolbar />
+      <ExercisesToolbar searchBarOnChange={searchBarOnChange} />
       <div className={classes.content}>
-        <ExercisesTable exercises={exercises} />
+        <ExercisesTable exercises={filteredExercises} />
       </div>
     </div>
   )

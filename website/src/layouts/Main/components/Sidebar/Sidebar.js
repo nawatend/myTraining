@@ -52,7 +52,7 @@ const Sidebar = props => {
       icon: <DashboardIcon />
     },
     {
-      title: 'Sporters',
+      title: 'Athletes',
       href: '/sporters',
       icon: <PeopleIcon />
     },
@@ -81,6 +81,7 @@ const Sidebar = props => {
       href: '/feedbacks',
       icon: <FeedbackIcon />
     },
+
     {
       title: 'Account',
       href: '/account',

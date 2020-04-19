@@ -7,6 +7,8 @@ import Nav from '../components/Nav'
 import Return from '../components/Return'
 import Timer from '../components/Timer'
 import ExerciseDone from '../components/exercise/Done'
+import {  withRouter, useHistory } from 'react-router-dom';
+
 let ExerciseDetailPage = () => {
 
 
@@ -101,4 +103,4 @@ let ExerciseDetailPage = () => {
         </div>
     )
 }
-export default BaseLayout(ExerciseDetailPage)
+export default withRouter(ExerciseDetailPage)

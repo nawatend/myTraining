@@ -45,8 +45,7 @@ const WorkoutSessionToolbar = props => {
     >
       <div className={classes.row}>
         <span className={classes.spacer} />
-        <Button className={classes.importButton}>Import</Button>
-        <Button className={classes.exportButton}>Export</Button>
+
         <Button
           color="primary"
           variant="contained"
@@ -58,7 +57,8 @@ const WorkoutSessionToolbar = props => {
       <div className={classes.row}>
         <SearchInput
           className={classes.searchInput}
-          placeholder="Search workout session"
+          placeholder="Search workout session name or focus"
+          onChange={props.searchBarOnChange}
         />
       </div>
     </div>

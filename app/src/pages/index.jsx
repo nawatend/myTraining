@@ -10,8 +10,9 @@ import { Paper, List } from '@material-ui/core'
 import Timer from '../components/Timer'
 import Bars from '../components/Bars'
 import { Title, SubTitle } from '../components/texts'
+import {  withRouter, useHistory } from 'react-router-dom';
 
-let HomePage = () => {
+let HomePage = (props) => {
 
     useEffect(() => {
 
@@ -38,4 +39,4 @@ let HomePage = () => {
 
 }
 
-export default BaseLayout(HomePage)
+export default withRouter(HomePage)

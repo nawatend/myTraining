@@ -4,7 +4,7 @@ import BaseLayout from '../layouts/base';
 import WorkoutCard from '../components/WorkoutCard'
 import HorizontalContainer from '../components/HorizontalContainer'
 import { SubTitle } from '../components/texts'
-
+import {  withRouter, useHistory } from 'react-router-dom';
 
 
 let WorkoutsPage = () => {
@@ -31,4 +31,4 @@ let WorkoutsPage = () => {
     )
 }
 
-export default BaseLayout(WorkoutsPage)
+export default withRouter(WorkoutsPage)

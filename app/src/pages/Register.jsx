@@ -22,7 +22,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 
 import Header from '../components/Header'
-
+import { Title, SubTitle } from '../components/texts'
 
 //form
 import Radio from '@material-ui/core/Radio';
@@ -40,6 +40,9 @@ import { AuthService, UserService } from '../api'
 const useStyles = makeStyles((theme) => ({
     root: {
         width: '100%',
+    },
+    paper: {
+        backgroundColor: 'white'
     },
     button: {
         marginTop: theme.spacing(1),
@@ -109,7 +112,7 @@ let RegisterPage = () => {
         age: 20,
         showPassword: false,
         role: "sporter",
-        imageName: "test.jpg"
+        imageName: "images/skr_wcjk4w"
     })
 
     const handleClickShowPassword = () => {
@@ -154,20 +157,7 @@ let RegisterPage = () => {
     };
 
     useEffect(() => {
-        // Auth.login({ email: "sporter@gmail.com", password: "111111" }).then(() => {
-        //     console.log("pushed")
-        //     history.push("/")
-        // }).catch((e) => console.log('failed log'))
 
-
-        // axios.post("http://127.0.0.1:4000/api/auth/login", { email: "sporter@gmail.com", password: "111111" })
-        //     .then((response) => {
-        //         if (response.status === 200) {
-        //             console.log(response.data)
-        //         }
-        //     }).catch((error) => {
-        //         console.log(error)
-        //     })
     }, [history])
 
     const registerUser = (e) => {
@@ -285,7 +275,9 @@ let RegisterPage = () => {
             <main className="main__content">
                 <div className="register">
                     <div className={classes.root}>
+                        <Title text="Let's fill in informations" />
                         <Stepper activeStep={activeStep} orientation="vertical">
+
                             {steps.map((label, index) => (
                                 <Step key={label}>
                                     <StepLabel>{label}</StepLabel>
@@ -314,14 +306,6 @@ let RegisterPage = () => {
                                 </Step>
                             ))}
                         </Stepper>
-                        {/* {activeStep === steps.length && (
-                            <Paper square elevation={0} className={classes.resetContainer}>
-                                <Typography>All steps completed - you&apos;re finished</Typography>
-                                <Button onClick={handleReset} className={classes.button}>
-                                    Reset
-                                </Button>
-                            </Paper>
-                        )} */}
                     </div>
                 </div>
             </main>

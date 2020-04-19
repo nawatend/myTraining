@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import BaseLayout from '../layouts/base';
-
+import {  withRouter, useHistory } from 'react-router-dom';
 
 let ProfilePage = () => {
 
@@ -15,4 +15,4 @@ let ProfilePage = () => {
     )
 }
 
-export default BaseLayout(ProfilePage)
+export default withRouter(ProfilePage)

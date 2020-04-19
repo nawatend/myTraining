@@ -11,7 +11,9 @@ import {
   WorkoutSessionList as WorkoutSessionListView,
   WorkoutSessionDetail as WorkoutSessionDetailView,
 
-  UserList as UserListView,
+  SporterDetail as SporterDetailView,
+  SporterList as SporterListView,
+  SporterListByTrainer as SporterListByTrainerView,
   //Typography as TypographyView,
   //Icons as IconsView,
   Account as AccountView,
@@ -44,13 +46,25 @@ const Routes = () => {
         path="/dashboard"
       />
       <RouteWithLayout
-        component={UserListView}
+        component={SporterListByTrainerView}
         exact
         layout={MainLayout}
         path="/sporters"
       />
       <RouteWithLayout
-        component={UserListView}
+        component={SporterDetailView}
+        exact
+        layout={MainLayout}
+        path="/sporters/detail/:id"
+      />
+      <RouteWithLayout
+        component={SporterListView}
+        exact
+        layout={MainLayout}
+        path="/invite/sporters"
+      />
+      <RouteWithLayout
+        component={SporterListView}
         exact
         layout={MainLayout}
         path="/feedbacks"
@@ -123,7 +137,7 @@ const Routes = () => {
         path="/workoutprograms/create"
       />
 
-<RouteWithLayout
+      <RouteWithLayout
         component={WorkoutProgramEditView}
         exact
         layout={MainLayout}

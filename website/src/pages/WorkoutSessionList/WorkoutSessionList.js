@@ -10,6 +10,7 @@ import mockData from './data';
 import { ExerciseBaseService, TrainerService, WorkoutSessionService } from '../../services/api'
 //jwt authen
 import { isJWTValid, getTrainerIdFromJWT } from '../../utils/jwt'
+import { filterArrayObjectByTwoKeys } from '../../utils/filter'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -30,7 +31,8 @@ const WorkoutSessionList = () => {
   const classes = useStyles();
 
   const [workoutSessions, setWorkoutSessions] = useState([]);
-
+  const [filteredWSs, setFilteredWSs] = useState([])
+  const [searchTerm, setSearchTerm] = useState()
 
   const [trainerId, setTrainerId] = useState(null)
   useEffect(() => {
@@ -49,15 +51,34 @@ const WorkoutSessionList = () => {
     }
   }, [trainerId])
 
+  useEffect(() => {
+    setFilteredWSs(workoutSessions)
+  }, [workoutSessions])
+
+
+  useEffect(() => {
+
+    let filteredArray = filterArrayObjectByTwoKeys([...workoutSessions], searchTerm, "title", "type")
+    if (filteredArray.length >= 0) {
+      setFilteredWSs(filteredArray)
+    }
+  }, [searchTerm])
+
+  const searchBarOnChange = (e) => {
+    e.preventDefault()
+    setSearchTerm(e.target.value)
+  }
+
+
   return (
     <div className={classes.root}>
-      <WorkoutSessionsToolbar />
+      <WorkoutSessionsToolbar searchBarOnChange={searchBarOnChange} />
       <div className={classes.content}>
         <Grid
           container
           spacing={3}
         >
-          {workoutSessions.map(workoutSession => (
+          {filteredWSs.map(workoutSession => (
             <Grid
               item
               key={workoutSession.id}
@@ -72,7 +93,7 @@ const WorkoutSessionList = () => {
         </Grid>
       </div>
       <div className={classes.pagination}>
-          <Typography variant="caption">6 of {workoutSessions.length}</Typography>
+        <Typography variant="caption">6 of {filteredWSs.length}</Typography>
         <IconButton>
           <ChevronLeftIcon />
         </IconButton>

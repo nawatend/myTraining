@@ -59,7 +59,8 @@ const WorkoutProgramToolbar = props => {
       <div className={classes.row}>
         <SearchInput
           className={classes.searchInput}
-          placeholder="Search user"
+          placeholder="Search workout program by title or type"
+          onChange={props.searchBarOnChange}
         />
       </div>
     </div>

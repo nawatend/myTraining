@@ -13,6 +13,7 @@ import MenuItem from '@material-ui/core/MenuItem'
 //chart
 import Chart from '../components/Chart'
 
+import {  withRouter, useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
     formControl: {
@@ -70,4 +71,4 @@ let ProgressPage = () => {
     )
 }
 
-export default BaseLayout(ProgressPage)
+export default withRouter(ProgressPage)

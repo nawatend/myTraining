@@ -6,8 +6,6 @@ import { useMediaQuery } from '@material-ui/core';
 
 import { Sidebar, Topbar, Footer } from './components';
 import { Redirect } from 'react-router-dom';
-//api
-import { ExerciseBaseService, TrainerService } from '../../services/api'
 
 //jwt authen
 import { isJWTValid, getTrainerIdFromJWT } from '../../utils/jwt'

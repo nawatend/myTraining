@@ -1,4 +1,4 @@
-import { Entity, OneToOne, JoinColumn, PrimaryGeneratedColumn, Unique, CreateDateColumn, Column, OneToMany } from "typeorm";
+import { Entity, OneToOne, JoinColumn, PrimaryGeneratedColumn, Unique, CreateDateColumn, Column, OneToMany, ManyToOne } from "typeorm";
 import { Length, IsNotEmpty } from "class-validator";
 import * as bcrypt from "bcryptjs";
 import { User } from "./User";
@@ -18,9 +18,12 @@ export class Sporter {
   @JoinColumn()
   user: User;
 
-  @OneToOne(type => Trainer, { nullable: true })
+  @ManyToOne(type => Trainer, { nullable: true })
   @JoinColumn()
   trainer: Trainer;
+
+  @Column({ default: false })
+  acceptTrainer: boolean;
 
   @OneToOne(type => WorkoutProgram, { nullable: true })
   @JoinColumn()

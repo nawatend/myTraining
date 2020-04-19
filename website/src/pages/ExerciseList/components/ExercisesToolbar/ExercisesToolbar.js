@@ -40,6 +40,8 @@ const UsersToolbar = props => {
     history.push("/exercises/create")
   }
 
+  
+
   return (
     <div
       {...rest}
@@ -59,7 +61,8 @@ const UsersToolbar = props => {
       <div className={classes.row}>
         <SearchInput
           className={classes.searchInput}
-          placeholder="Search user"
+          placeholder="Search exercise by title or type"
+          onChange={props.searchBarOnChange}
         />
       </div>
     </div>

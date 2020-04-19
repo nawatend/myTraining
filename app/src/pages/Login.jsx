@@ -1,7 +1,7 @@
-import React from 'react'
-import BaseLayout from '../layouts/base';
+import React, { useState, useEffect } from 'react'
+
 import TextField from '@material-ui/core/TextField';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, Typography } from '@material-ui/core';
 import Button from '../components/Button'
 import { Link, useHistory } from 'react-router-dom'
 import clsx from 'clsx'
@@ -18,6 +18,8 @@ import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 //api
 import { AuthService, UserService } from '../api'
 import checkRole from '../utils/checkRole'
+//jwt authen
+import { isJWTValid } from '../utils/jwt'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -40,14 +42,16 @@ const useStyles = makeStyles((theme) => ({
 let LoginPage = () => {
     const classes = useStyles()
     let history = useHistory();
+    const [isAuth, setIsAuth] = useState(true)
     const [values, setValues] = React.useState({
-        email: 'sporter@gmail.com',
+        email: 'jc@gmail.com',
         amount: '',
-        password: '111111',
+        password: '123456',
         weight: '',
         weightRange: '',
         showPassword: false,
         error: false
+        , accessDenied: false
     })
 
     const handleChange = (prop) => (event) => {
@@ -63,21 +67,37 @@ let LoginPage = () => {
     }
 
     const showError = e => {
-        console.log(e)
-        setValues({ ...values, error: true })
+        console.log(e.message)
+        if (parseInt(e.message) === 401) {
+            setValues({ ...values, error: false, accessDenied: true })
+        } else {
+            setValues({ ...values, error: true, accessDenied: false })
+        }
+
     }
+
+    useEffect(() => {
+
+        if (isJWTValid()) {
+            history.push("/")
+        } else {
+            AuthService.logout()
+
+        }
+    }, [history, isAuth])
+
 
     const login = (e) => {
         e.preventDefault()
         AuthService.login({ email: values.email, password: values.password })
             .then((response) => {
                 if (checkRole().role === "sporter") {
+                    console.log(checkRole())
                     history.push("/")
                 } else {
                     AuthService.logout()
-                    history.push("/auth/register")
+                    throw new Error(401)
                 }
-
             }).catch((e) => showError(e))
 
         console.log("logged in")
@@ -92,7 +112,7 @@ let LoginPage = () => {
                     </div>
                     <form className={classes.root} noValidate autoComplete="off">
                         <TextField
-                            error={values.email === '' || values.error ? true : false}
+                            //error={values.email === '' || values.error ? true : false}
                             id="standard-helperText"
                             label="E-mail"
                             helperText={values.email === '' || values.error ? "Fill in correct e-mail" : ''}
@@ -139,7 +159,18 @@ let LoginPage = () => {
                                     />
                                 </Grid>
                             </Grid>
+
+
                         </div>
+                        {values.accessDenied &&
+                            <Typography
+                                className="error"
+                                color="textSecondary"
+                                variant="caption"
+                            >
+                                Access Denied Trainer!
+                </Typography>
+                        }
                         <div className="form__action--register">
                             <Link to="/auth/register">
                                 Create Account
