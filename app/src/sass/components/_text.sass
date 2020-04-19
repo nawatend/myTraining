@@ -2,14 +2,17 @@
     text-align: left !important
     @include mainTitle
     margin: $ws-md auto
+    
 .sub__title
     text-align: left !important
     @include secondTitle
     margin-right: $ws-sm
+    
 .paragraph
     text-align: left !important
     @include mainText
     margin-right: $ws-sm
+    
 
 .MuiFormHelperText-filled 
     color: $negative-color !important
@@ -19,3 +22,19 @@
     font-size: $fs-sm !important
     margin: $ws-sm 0 !important
     width: 100% !important
+    text-transform: capitalize !important
+
+.textAndLabel
+    width: 100%
+    &__label
+        text-align: left !important
+        @include secondTitle
+        margin-right: $ws-sm
+        text-transform: capitalize !important
+
+    &__text
+        text-align: left !important
+        @include mainText
+        
+    &__text::first-letter
+        text-transform: capitalize !important

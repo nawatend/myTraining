@@ -27,7 +27,7 @@ let isJWTValid = () => {
 	return isValid
 }
 
-let getUserIdFromJWT =  () => {
+let getUserIdFromJWT = () => {
 
 	const token = localStorage.getItem(TOKEN_STRING)
 
@@ -39,12 +39,12 @@ let getUserIdFromJWT =  () => {
 		userId = decodedToken.userId
 	}
 
-	
+
 
 	return userId
 }
 
 export {
 	isJWTValid,
-	getUserIdFromJWT as getTrainerIdFromJWT
+	getUserIdFromJWT
 }
