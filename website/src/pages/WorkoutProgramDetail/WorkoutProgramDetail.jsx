@@ -19,14 +19,15 @@ import { CloudinaryContext, Image, Video, Transformation } from "cloudinary-reac
 import moment from 'moment';
 
 //api
-import { ExerciseBaseService, WorkoutProgramService, ExerciseFullService, WorkoutSessionService, TrainerService } from '../../services/api'
+import { SporterService, ExerciseBaseService, WorkoutProgramService, ExerciseFullService, WorkoutSessionService, TrainerService } from '../../services/api'
 
 //jwt authen
 import { isJWTValid, getTrainerIdFromJWT } from '../../utils/jwt'
 
 import ExercisesPreview from './components/ExercisesPreview'
 import WorkoutSessionsPreview from './components/WorkoutSessionsPreview'
-
+import AssignSporter from './components/AssignSporter'
+import RemoveSporter from './components/RemoveSporter'
 const useStyles = makeStyles(theme => ({
   root: {
     backgroundColor: theme.palette.background.default,
@@ -142,9 +143,11 @@ let WorkoutProgramDetail = (props) => {
   const { id } = useParams()
 
   const classes = useStyles();
-
+  const [sporters, setSporters] = useState([])
   const [isAuth, setIsAuth] = useState(true)
   const [loading, setLoading] = useState(true)
+  const [trainerId, setTrainerId] = useState(null)
+  const [sporter, setSporter] = useState({ user: { fullName: '' } })
 
   const [values, setValues] = useState({
     id: 1144,
@@ -156,12 +159,15 @@ let WorkoutProgramDetail = (props) => {
     createdAt: '',
     trainerId: '',
     workoutSessions: [],
-    sporterName: ''
+    sporterName: '',
+    sporterId: null,
+    isUpdated: false
   })
 
 
   useEffect(() => {
     if (loading) {
+      console.log("WP")
       WorkoutProgramService.getWorkoutProgramById(id)
         .then((WSDetail) => {
           return WSDetail
@@ -182,9 +188,35 @@ let WorkoutProgramDetail = (props) => {
       // })
 
     }
+  }, [id])
+
+  useEffect(() => {
+
+    TrainerService.getTrainerByUserId(getTrainerIdFromJWT())
+      .then((res) => {
+        console.log("TrainerId")
+        setTrainerId(res.id)
+      }).catch((e) => console.log('trainer not found'))
+  }, [trainerId])
+
+  useEffect(() => {
+
+    SporterService.getSportersByTrainer({ trainerId: trainerId })
+      .then((res) => {
+        console.log("sporters")
+        setSporters(res)
+      }).catch((e) => console.log('sporters not found'))
   }, [values])
 
-
+  useEffect(() => {
+    SporterService.sporterByWorkoutProgramId({ workoutProgramId: id })
+      .then((res) => {
+        console.log(res)
+        if (res.data.id !== undefined) {
+          setSporter(res.data)
+        }
+      }).catch((e) => console.log('sporters not found'))
+  }, [values.sporterId, values.isUpdated])
 
   const handleEdit = () => {
     history.push('/workoutprograms/edit/' + id)
@@ -193,6 +225,27 @@ let WorkoutProgramDetail = (props) => {
   const handleBack = () => {
     history.goBack();
   };
+
+  const assignSporterToTrainer = (e, sporterId) => {
+    e.preventDefault()
+    SporterService.assignWorkoutProgram({ sporterId: sporterId, workoutProgramId: id })
+      .then((res) => {
+        console.log("Assigned")
+        setValues({ ...values, sporterName: res.data.user.fullName, sporterId: res.data.id })
+      })
+      .catch((e) => console.log(e))
+  }
+
+  const removeSporter = (e) => {
+    e.preventDefault()
+    SporterService.assignWorkoutProgram({ sporterId: sporter.id, workoutProgramId: null })
+      .then((res) => {
+        console.log(res)
+        setValues({ ...values, sporterName: '', sporterId: null, isUpdated: true })
+        setSporter({ user: { fullName: '' } })
+      })
+      .catch((e) => console.log(e))
+  }
 
 
   if (!isAuth) {
@@ -248,12 +301,7 @@ let WorkoutProgramDetail = (props) => {
                         Program {values.title}
                       </Typography>
                       <Divider className={classes.divider} />
-                      <Typography
-                        className={classes.textField}
-                        variant="button"
-                      >
-                        Sporter: {values.sporterName || "No sporter assigned"}
-                      </Typography>
+
                       <Typography
                         className={classes.textField}
                         variant="button"
@@ -261,15 +309,41 @@ let WorkoutProgramDetail = (props) => {
                         Type: {values.type}
                       </Typography>
 
-
-
-
                       <Typography
                         className={classes.textField}
                         variant="button"
                       >
                         Created At: {moment(values.createdAt).format('DD/MM/YYYY')}
                       </Typography>
+
+
+                      {(sporter.id !== undefined) ?
+                        (
+                          <Typography
+                            className={classes.textField}
+                            variant="button"
+                          >
+                            Sporter: {sporter.user.fullName || "No sporter assigned"}
+                          </Typography>
+                        ) : (
+                          <Typography
+                            className={classes.textField}
+                            variant="button"
+                          >
+                            Sporter: {"No sporter assigned"}
+                          </Typography>
+
+                        )}
+
+
+                      {(sporter.id === undefined) ?
+                        (
+
+                          < AssignSporter assignSporterToTrainer={assignSporterToTrainer} sporters={[{ id: '', user: { fullName: "" }, workoutProgram: null }, ...sporters]} />
+                        ) : (
+                          <RemoveSporter removeSporter={removeSporter} />
+                        )
+                      }
                     </Grid>
 
 
@@ -283,7 +357,7 @@ let WorkoutProgramDetail = (props) => {
                         variant="h4"
                       >
 
-                       {values.workoutSessions.length} Workout Sessions
+                        {values.workoutSessions.length} Workout Sessions
                             </Typography>
 
                       <Divider className={classes.divider} />

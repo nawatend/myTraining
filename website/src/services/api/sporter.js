@@ -27,6 +27,13 @@ class SporterService {
 		return data
 	}
 
+	
+
+	static async sporterByWorkoutProgramId(body){
+
+		return axiosInstance.post(`/sporters/workoutprogram`, body)
+	}
+
 	static async inviteByTrainer(body) {
 
 		return axiosInstance.post(`/sporters/invite`, body)
@@ -40,6 +47,11 @@ class SporterService {
 	static async updateSporter(body) {
 
 		return axiosInstance.post(`/users/update`, body)
+	}
+
+	static async assignWorkoutProgram(body) {
+
+		return axiosInstance.post(`/sporters/assign/workoutprogram`, body)
 	}
 
 	static async updateSporterOnly(body) {
