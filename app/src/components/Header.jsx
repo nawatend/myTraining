@@ -45,7 +45,7 @@ let Header = ({ location, match, history }) => {
 
     return (
         <div className={classes.root}>
-            <AppBar className="header" position="static">
+            <AppBar className="header" id="main__header" position="static">
                 <Toolbar>
                     {(match.path.split('/').length >= 3) &&
                         <IconButton onClick={() => window.history.back()} edge="start" className={classes.menuButton} color="inherit" aria-label="menu">

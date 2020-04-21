@@ -89,6 +89,7 @@ export default function ExerciseDone(props) {
 
 
 
+
   return (
     <div className="exercise__done">
 
@@ -155,8 +156,8 @@ export default function ExerciseDone(props) {
           <Grid item xs={6} >
             <Button onClick={props.handleBack} variant="outlined" text="back" />
           </Grid>
-          <Grid item xs={6} >
-            <Button onClick={props.handleFinished}  text="Finish" />
+          <Grid id="exercise__finish" item xs={6} >
+            <Button onClick={props.handleFinished} text="Finish" />
           </Grid>
         </Grid>
       </div >

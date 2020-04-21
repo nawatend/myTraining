@@ -5,11 +5,16 @@ import Timer from '../components/Timer'
 import { Title, SubTitle } from '../components/texts'
 import Return from '../components/Return'
 import Feedback from '../components/Feedback'
-import {  withRouter, useHistory } from 'react-router-dom';
+import { withRouter, useHistory, useParams } from 'react-router-dom';
+
+
+import { ExerciseFullService } from '../api'
+
 let TodayExercisesPage = (props) => {
 
+    let { workoutsessionId } = useParams()
 
-    let testDatas = [{
+    let exercisesV2 = [{
         title: "1 0titltes",
         imagePath: "/images/test.jpg",
         videoPath: "/videos/test.mp4",
@@ -54,16 +59,39 @@ let TodayExercisesPage = (props) => {
 
     const [isRated, setIsRated] = useState(false)
     const [almostDone, setAlmostDone] = useState(false)
+    const [exercises, setExercises] = useState([])
 
 
-    
     useEffect(() => {
 
-        if (testDatas.length === 1 || testDatas.length === 0) {
+        console.log(workoutsessionId)
+        ExerciseFullService.getExerciseFullsByWorkoutSession(workoutsessionId)
+            .then((res) => {
+                console.log(res)
+                setExercises([...res])
+            })
+            .catch((e) => console.log(e))
+
+    }, [workoutsessionId])
+
+
+    useEffect(() => {
+
+        console.log(exercises.length)
+
+        let exercisesNotDone = exercises.filter((ex) => {
+            return ex.done === false
+        })
+
+
+        if (exercisesNotDone.length <= 1) {
             setAlmostDone(true)
+        } else {
+            setAlmostDone(false)
         }
 
-    }, [testDatas.length])
+
+    }, [exercises, exercises.length])
 
     return (
         <div className="today__exercises">
@@ -71,12 +99,12 @@ let TodayExercisesPage = (props) => {
                 <Timer />
             </div> */}
             <SubTitle text="Today's exercises" />
-            {testDatas.map((data, i) => ((!data.done) ? <ExerciseCard key={i} data={data} /> : null))}
+            {exercises.map((data, i) => ((!data.done) ? <ExerciseCard key={i} data={data} /> : null))}
             {almostDone &&
                 <Feedback />
             }
             <SubTitle text="Completed exercises" />
-            {testDatas.map((data, i) => ((data.done) ? <ExerciseCard key={i} data={data} /> : null))}
+            {exercises.map((data, i) => ((data.done) ? <ExerciseCard key={i} data={data} /> : null))}
         </div>
     )
 }

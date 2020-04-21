@@ -7,7 +7,8 @@ import Nav from '../components/Nav'
 import Return from '../components/Return'
 import Timer from '../components/Timer'
 import ExerciseDone from '../components/exercise/Done'
-import {  withRouter, useHistory } from 'react-router-dom';
+import { withRouter, useHistory, useParams } from 'react-router-dom';
+import { ExerciseFullService } from '../api'
 
 let ExerciseDetailPage = () => {
 
@@ -40,7 +41,10 @@ let ExerciseDetailPage = () => {
         mainInfo: { time: 20 },
         description: "ttest descirption is fun but leuk lksdflk sdn dlsknfl ksdlfkj j jds flis  klmlk"
     }]
-    const [exerciseInfo, setExerciseInfo] = useState(testDatas[0])
+
+    const { workoutSessionId, exerciseFullId } = useParams()
+
+    const [exerciseInfo, setExerciseInfo] = useState({ workoutSession: {}, exerciseBase: {} })
 
     const [isDone, setIsDone] = useState(false)
     const [finished, setFinished] = useState(false)
@@ -48,6 +52,8 @@ let ExerciseDetailPage = () => {
 
     const handleDone = () => {
         console.log('done is cliekd ')
+
+
         setIsDone(true)
     }
 
@@ -61,41 +67,61 @@ let ExerciseDetailPage = () => {
         setFinished(true)
     }
 
-
     useEffect(() => {
 
+        console.log(exerciseFullId)
+        ExerciseFullService.getExerciseFullById(exerciseFullId)
+            .then((res) => {
+                console.log(res)
+                setExerciseInfo({ ...res })
+            })
+            .catch((e) => console.log(e))
 
-    }, [])
+    }, [exerciseFullId])
+
+
+    useEffect(() => {
+        let btnFinish = document.getElementById('exercise__finish')
+        let header = document.getElementById('main__header')
+        if (btnFinish) {
+            btnFinish.scrollIntoView({ behavior: "smooth" })
+            console.log("scoorrll")
+        } else {
+            header.scrollIntoView({ behavior: "smooth" })
+        }
+    }, [isDone])
 
     return (
 
         <div className="exercise__detail">
-            <div className="exercise__detail__media">
+            <div className="exercise__detail__media" id="exercise__video">
                 <CardMedia
                     component="video"
                     controls
                     className="exercise__detail__media--video"
-                    src={`${process.env.PUBLIC_URL}/videos/test.mp4`}
+                    src={`http://res.cloudinary.com/filesmytraining/video/upload/v1/${exerciseInfo.exerciseBase.videoName}`}
                     title="Exercise Video"
                     aspectratio="wide"
                 />
             </div>
 
-            {isDone ? <ExerciseDone mainInfo={exerciseInfo.mainInfo} handleBack={handleBack} handleFinished={handleFinished} /> :
+            {isDone ? <ExerciseDone mainInfo={exerciseInfo} handleBack={handleBack} handleFinished={handleFinished} /> :
                 (<div className="exercise__detail__info">
                     <div className="exercise__detail__info__header">
-                        <div className="exercise__detail__info__header--title">{exerciseInfo.title}</div>
-                        <div className="exercise__detail__info__header--button">
+                        <div className="exercise__detail__info__header--title">{exerciseInfo.exerciseBase.title}</div>
+                        <div className="exercise__detail__info__header--button" >
                             <Button onClick={handleDone} text="DONE" />
                         </div>
                     </div>
-                    <div className="detail__timer">
-                        <Timer />
-                    </div>
+                    {exerciseInfo.exerciseBase.type === "time" &&
+                        <div className="detail__timer">
+                            <Timer />
+                        </div>
+                    }
 
                     <ExerciseMainInfo mainInfo={exerciseInfo} />
                     <div className="exercise__detail__info__description">
-                        {exerciseInfo.description}
+                        {exerciseInfo.exerciseBase.description}
                     </div>
 
                 </div>)

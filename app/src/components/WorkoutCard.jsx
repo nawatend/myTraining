@@ -9,22 +9,22 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import { Link } from 'react-router-dom'
 
-export default function WorkoutCard() {
+export default function WorkoutCard(props) {
     return (
-        <Card component={Link} to="/today/02144" className="card__workout">
+        <Card component={Link} to={`/today/${props.workoutSession.id}`} className="card__workout">
             <CardActionArea className="card__workout__ActionArea">
                 <CardMedia
                     className="card__workout__media"
-                    image={`${process.env.PUBLIC_URL}/images/bag_squad.jpg`}
+                    image={`http://res.cloudinary.com/filesmytraining/image/upload/f_auto,q_auto/v1/images/skr_odh78c`}
                     title="bag squad"
                 />
                 <CardContent className="card__workout__content">
-                    <Typography gutterBottom variant="h5" component="h2">
-                        Lizardee
-            </Typography>
+                    <Typography gutterBottom variant="h6" component="h2">
+                        {props.workoutSession.title}
+                    </Typography>
                     <Typography variant="body2" component="p">
-                        Lizard
-            </Typography>
+                        {props.workoutSession.type}
+                    </Typography>
                 </CardContent>
             </CardActionArea>
             {/* <CardActions>

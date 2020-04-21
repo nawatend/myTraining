@@ -10,29 +10,52 @@ import { Paper, List } from '@material-ui/core'
 import Timer from '../components/Timer'
 import Bars from '../components/Bars'
 import { Title, SubTitle } from '../components/texts'
-import {  withRouter, useHistory } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
+//api
+import { SporterService, WorkoutSessionService } from '../api'
+import { getUserIdFromJWT } from '../utils/jwt'
 
 let HomePage = (props) => {
 
-    useEffect(() => {
 
-    }, [])
+    const [sporter, setSporter] = useState()
+    const [values, setValues] = useState({})
+    const [workoutSessions, setWorkoutSessions] = useState([])
+    const [workoutProgramId, setWorkoutProgramId] = useState(null)
+
+    useEffect(() => {
+        SporterService.getSporterByUserId(getUserIdFromJWT())
+            .then((res) => {
+                console.log(res)
+                setWorkoutProgramId(res.workoutProgram.id)
+            }).catch((e) => console.log('sporter not found'))
+    }, [values])
+
+    useEffect(() => {
+        WorkoutSessionService.getWorkoutSessionsByWorkoutProgram(workoutProgramId)
+            .then((res) => {
+                console.log(res)
+                setWorkoutSessions([...res])
+            }).catch((e) => console.log('sessions not found'))
+
+    }, [workoutProgramId])
 
     return (
         <div className="home">
-            
+
             <SubTitle text="Choose today's session" />
             <HorizontalContainer>
-                <WorkoutCard />
-                <WorkoutCard />
-                <WorkoutCard />
+
+                {workoutSessions.map((workoutSession) => {
+                    return <WorkoutCard workoutSession={workoutSession} />
+                })
+                }
+
             </HorizontalContainer>
 
             <SubTitle text="Completed sessions" />
             <HorizontalContainer>
-                <WorkoutCard />
-                <WorkoutCard />
-                <WorkoutCard />
+                
             </HorizontalContainer>
         </div>
     )
