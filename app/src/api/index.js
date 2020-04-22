@@ -6,6 +6,10 @@ import WorkoutSessionService from './workoutSession'
 import WorkoutProgramService from './workoutProgram'
 import TrainerService from './trainer'
 import SporterService from './sporter'
+import FeedbackService from './feedback'
+import RateService from './rate'
+import ProgressService from './progress'
+
 export {
 	AuthService,
 	UserService,
@@ -14,5 +18,8 @@ export {
 	WorkoutSessionService,
 	WorkoutProgramService,
 	TrainerService,
-	SporterService
+	SporterService,
+	FeedbackService,
+	RateService,
+	ProgressService
 }

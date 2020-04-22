@@ -46,8 +46,8 @@ let HomePage = (props) => {
             <SubTitle text="Choose today's session" />
             <HorizontalContainer>
 
-                {workoutSessions.map((workoutSession) => {
-                    return <WorkoutCard workoutSession={workoutSession} />
+                {workoutSessions.map((workoutSession,id) => {
+                    return <WorkoutCard key={id} workoutSession={workoutSession} />
                 })
                 }
 

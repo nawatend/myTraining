@@ -8,7 +8,9 @@ import Return from '../components/Return'
 import Timer from '../components/Timer'
 import ExerciseDone from '../components/exercise/Done'
 import { withRouter, useHistory, useParams } from 'react-router-dom';
-import { ExerciseFullService } from '../api'
+import { ExerciseFullService, ProgressService, SporterService } from '../api'
+import { getUserIdFromJWT } from '../utils/jwt'
+import { msToTime, msToMinutes } from '../utils/msToTime'
 
 let ExerciseDetailPage = () => {
 
@@ -42,12 +44,27 @@ let ExerciseDetailPage = () => {
         description: "ttest descirption is fun but leuk lksdflk sdn dlsknfl ksdlfkj j jds flis  klmlk"
     }]
 
+    const history = useHistory()
     const { workoutSessionId, exerciseFullId } = useParams()
 
     const [exerciseInfo, setExerciseInfo] = useState({ workoutSession: {}, exerciseBase: {} })
 
     const [isDone, setIsDone] = useState(false)
     const [finished, setFinished] = useState(false)
+    const [elapseTime, setElapseTime] = useState(0)
+    const [sporter, setSporter] = useState()
+    const [results, setResults] = useState({ time: 0, sets: 0, reps: 0, kg: 0 })
+
+    const handleChange = (prop) => (event, value) => {
+        setResults({ ...results, [prop]: value })
+    }
+
+    useEffect(() => {
+        SporterService.getSporterByUserId(getUserIdFromJWT())
+            .then((res) => {
+                setSporter(res)
+            }).catch((e) => console.log('sporter not found'))
+    }, [])
 
 
     const handleDone = () => {
@@ -64,7 +81,33 @@ let ExerciseDetailPage = () => {
 
     const handleFinished = () => {
         console.log('fisnihed is cliekd ')
+        //TODO save result to db
+
+        let body = {
+            sporterId: sporter.id,
+            exerciseFullId: exerciseInfo.id,
+            sets: results.sets,
+            reps: results.reps,
+            kg: results.kg,
+            time: results.time
+        }
+
+        ProgressService.createProgress(body)
+            .then((res) => {
+                console.log(res)
+                
+            })
+            .catch((e) => console.log(e))
+
         setFinished(true)
+        history.push('/today/' + workoutSessionId)
+
+
+        //TODO update exerciseFull to done
+    }
+
+    const handleTimer = (value) => {
+        setElapseTime(value)
     }
 
     useEffect(() => {
@@ -105,7 +148,7 @@ let ExerciseDetailPage = () => {
                 />
             </div>
 
-            {isDone ? <ExerciseDone mainInfo={exerciseInfo} handleBack={handleBack} handleFinished={handleFinished} /> :
+            {isDone ? <ExerciseDone handleChange={handleChange} mainInfo={exerciseInfo} handleBack={handleBack} handleFinished={handleFinished} elapseTime={msToMinutes(elapseTime)} /> :
                 (<div className="exercise__detail__info">
                     <div className="exercise__detail__info__header">
                         <div className="exercise__detail__info__header--title">{exerciseInfo.exerciseBase.title}</div>
@@ -115,7 +158,7 @@ let ExerciseDetailPage = () => {
                     </div>
                     {exerciseInfo.exerciseBase.type === "time" &&
                         <div className="detail__timer">
-                            <Timer />
+                            <Timer handleTimer={handleTimer} />
                         </div>
                     }
 

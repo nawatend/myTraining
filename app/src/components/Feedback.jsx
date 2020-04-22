@@ -5,11 +5,13 @@ import Box from '@material-ui/core/Box';
 import CardMedia from '@material-ui/core/CardMedia';
 import Card from '@material-ui/core/Card';
 
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import { Title, SubTitle, Paragraph } from '../components/texts/index'
 import Button from '../components/Button'
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
+
+import { FeedbackService, RateService } from '../api'
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -20,7 +22,9 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export default function Feedback() {
+let Feedback = props => {
+
+    const history = useHistory()
 
     const classes = useStyles();
     const [rateValue, setRateValue] = useState(4)
@@ -30,10 +34,8 @@ export default function Feedback() {
     const [isFeedbackSkipped, setIsFeedbackSkipped] = useState(true)
     const [done, setDone] = useState(false)
 
-
-    let acceptFeedback = () => {
-        setIsFeedbackSkipped(false)
-    }
+    const [rateId, setRateId] = useState()
+    const [message, setMessage] = useState()
 
     const handleChange = event => {
         setFeedbackValue(event.target.value);
@@ -41,12 +43,56 @@ export default function Feedback() {
 
     const sendFeedback = () => {
         //TODO-> send feedback to DB
-        setDone(true)
+        let body = {
+            message: feedbackValue,
+            rateId: rateId,
+        }
+
+        FeedbackService.createFeedback(body)
+            .then((res) => {
+                console.log(res)
+                setDone(true)
+            }).catch((e) => console.log(e))
+    }
+
+    const acceptFeedback = () => {
+        //finally store rate
+        let body = {
+            workoutSessionId: props.data.workoutSessionId,
+            rate: rateValue,
+            sporterId: props.data.sporter.id
+        }
+        RateService.createRate(body)
+            .then((res) => {
+                console.log(res)
+                setRateId(res.data.id)
+
+            }).catch((e) => console.log(e))
+
+        setIsFeedbackSkipped(false)
+
     }
 
     const skipFeedback = () => {
+
+        //finally store rate
+        let body = {
+            workoutSessionId: props.data.workoutSessionId,
+            rate: rateValue,
+            sporterId: props.data.sporter.id
+        }
+        RateService.createRate(body)
+            .then((res) => {
+                console.log(res)
+                setRateId(res.data.id)
+
+            }).catch((e) => console.log(e))
+
         setIsFeedbackSkipped(true)
         setDone(true)
+        history.push('/')
+
+
     }
     if (!done) {
 
@@ -55,7 +101,7 @@ export default function Feedback() {
             return (
                 <Card className="feedback__workoutSession">
                     <div className="feedback__main">
-                        <SubTitle text="Write your feedback here?" />
+                        <SubTitle text="Write your feedback here" />
                         <div className="feedback__text">
                             <Rating
                                 name="workout-rating"
@@ -67,6 +113,7 @@ export default function Feedback() {
                             <form className={classes.root} noValidate autoComplete="off">
                                 <div>
                                     <TextField
+                                        autoFocus
                                         id="standard-multiline-flexible"
                                         multiline
                                         rowsMax="5"
@@ -90,7 +137,8 @@ export default function Feedback() {
                     <div className="feedback__main">
                         <SubTitle text="Would you like to give a feedback?" />
                         <div className="feedback__choice">
-                            <Button onClick={() => { setIsFeedbackSkipped(false) }} text="YES" /> <Button onClick={() => { skipFeedback() }} text="NO, THANKS" variant="outlined" />
+                            <Button onClick={() => { acceptFeedback() }} text="YES" />
+                            <Button onClick={() => { skipFeedback() }} text="NO, THANKS" variant="outlined" />
                         </div>
                     </div>
                 </Card>
@@ -112,7 +160,7 @@ export default function Feedback() {
                 // </div>
                 <Card className="feedback__workoutSession">
                     <div className="feedback__main">
-                        <SubTitle text="How do you feel after this workout session?" />
+                        <SubTitle text="How great do you feel after this workout session?" />
                         <div className="feedback__rating">
                             <Paragraph text="Tap to Rate" />
                             <Rating
@@ -124,7 +172,7 @@ export default function Feedback() {
                             />
                         </div>
 
-                        <Button onClick={() => { setIsRated(true) }} text="Finish" />
+                        <Button onClick={() => { setIsRated(true) }} text="SEND" />
                     </div>
                 </Card>
             );
@@ -134,3 +182,6 @@ export default function Feedback() {
         return null
     }
 }
+
+
+export default Feedback

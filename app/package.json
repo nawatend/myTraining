@@ -2,7 +2,7 @@
   "homepage": "https://nawatend.github.io/myTraining/",
   "name": "my_training",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "dependencies": {
     "@devexpress/dx-react-chart": "^2.5.1",
     "@devexpress/dx-react-chart-material-ui": "^2.5.1",

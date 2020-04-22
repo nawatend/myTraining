@@ -98,7 +98,7 @@ export default function ExerciseCard(props) {
 
                 </CardActions> */}
                 {!props.data.done &&
-                    <Link to="/exercisedetail/1" className="card__exercise__main">
+                    <Link to={`/exercisedetail/${props.data.workoutSession.id}/${props.data.id}`} className="card__exercise__main">
                         <Button text="START" />
                     </Link>
                 }

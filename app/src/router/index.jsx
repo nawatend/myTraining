@@ -21,7 +21,7 @@ let router = () => {
                 <Route exact path="/auth/login" component={LoginPage} />
                 <Route exact path="/auth/register" component={RegisterPage} />
                 <RouteWithLayout path="/" component={HomePage} exact layout={BaseLayout} />
-                <RouteWithLayout exact layout={BaseLayout} path="/exercisedetail/:workoutProgramId/:exerciseFullId" component={ExerciseDetailPage} />
+                <RouteWithLayout exact layout={BaseLayout} path="/exercisedetail/:workoutSessionId/:exerciseFullId" component={ExerciseDetailPage} />
 
                 <RouteWithLayout exact layout={BaseLayout} path="/today/:workoutsessionId" component={TodayExercisesPage} />
                 <RouteWithLayout exact layout={BaseLayout} path="/workouts" component={WorkoutsPage} />

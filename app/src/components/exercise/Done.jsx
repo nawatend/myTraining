@@ -81,13 +81,15 @@ export default function ExerciseDone(props) {
     description: "ttest descirption is fun but leuk lksdflk sdn dlsknfl ksdlfkj j jds flis  klmlk"
   }]
   const [exerciseInfo, setExerciseInfo] = useState(testDatas[1])
-  const [results, setResults] = useState({ time: props.mainInfo.time, sets: props.mainInfo.sets, reps: props.mainInfo.reps, kg: props.mainInfo.kg })
+  const [results, setResults] = useState({
+    time: props.mainInfo.time
+    , sets: props.mainInfo.sets
+    , reps: props.mainInfo.reps
+    , kg: props.mainInfo.kg
+  })
 
-  const handleChange = (prop) => (event, value) => {
-    setResults({ ...results, [prop]: value })
-  }
 
-
+  console.log(props.mainInfo)
 
 
   return (
@@ -97,60 +99,84 @@ export default function ExerciseDone(props) {
       <span> Fill In Your  Performance</span>
       </div>
 
-      <div className="exercise__done--subtitle">Sets: {results.sets}
-        <FormControl component="fieldset">
+      {props.mainInfo.exerciseBase.type === "time" ? (
 
-          <Slider
-            defaultValue={props.mainInfo.sets}
-            //getAriaValueText={valuetext}
-            onChange={handleChange('sets')}
-            //onChangeCommitted={handleChange('sets')}
-            aria-labelledby="sets"
-            step={1}
-            //marks={marks.sets}
-            min={1}
-            max={12}
-            name='sets'
-            valueLabelDisplay='on'
-          />
-        </FormControl>
-      </div>
+        <div className="exercise__done--subtitle">Time: {results.time}
+          <FormControl component="fieldset">
+            <Slider
+              defaultValue={props.elapseTime}
+              //getAriaValueText={valuetext}
+              onChange={props.handleChange('time')}
+              //onChangeCommitted={handleChange('sets')}
+              aria-labelledby="time"
+              step={1}
+              //marks={marks.sets}
+              min={1}
+              max={60}
+              name='time'
+              valueLabelDisplay='on'
+            />
+          </FormControl>
+        </div>
+      ) :
+        (
+          <div>
 
-      <div className="exercise__done--subtitle">Repetitions: {results.reps}
-        <FormControl component="fieldset">
+            <div className="exercise__done--subtitle">Sets: {results.sets}
+              <FormControl component="fieldset">
+                <Slider
+                  defaultValue={props.mainInfo.sets}
+                  //getAriaValueText={valuetext}
+                  onChange={props.handleChange('sets')}
+                  //onChangeCommitted={handleChange('sets')}
+                  aria-labelledby="sets"
+                  step={1}
+                  //marks={marks.sets}
+                  min={1}
+                  max={12}
+                  name='sets'
+                  valueLabelDisplay='on'
+                />
+              </FormControl>
+            </div>
 
-          <Slider
-            defaultValue={props.mainInfo.reps}
-            //getAriaValueText={valuetext}
-            onChange={handleChange('reps')}
-            //onChangeCommitted={handleChange('reps')}
-            aria-labelledby="reps"
-            step={1}
-            //marks={marks.reps}
-            min={1}
-            max={30}
-            name='reps'
-            valueLabelDisplay='on'
-          />
-        </FormControl>
-      </div>
-      <div className="exercise__done--subtitle">Kilogram: {results.kg}
-        <FormControl component="fieldset">
-          <Slider
-            defaultValue={props.mainInfo.kg}
-            //getAriaValueText={valuetext}
-            onChange={handleChange('kg')}
-            //onChangeCommitted={handleChange('kg')}
-            aria-labelledby="kg"
-            step={1}
-            //marks={marks.kg}
-            min={1}
-            max={200}
-            name='kg'
-            valueLabelDisplay='on'
-          />
-        </FormControl>
-      </div>
+            <div className="exercise__done--subtitle">Repetitions: {results.reps}
+              <FormControl component="fieldset">
+
+                <Slider
+                  defaultValue={props.mainInfo.reps}
+                  //getAriaValueText={valuetext}
+                  onChange={props.handleChange('reps')}
+                  //onChangeCommitted={handleChange('reps')}
+                  aria-labelledby="reps"
+                  step={1}
+                  //marks={marks.reps}
+                  min={1}
+                  max={30}
+                  name='reps'
+                  valueLabelDisplay='on'
+                />
+              </FormControl>
+            </div>
+            <div className="exercise__done--subtitle">Kilogram: {results.kg}
+              <FormControl component="fieldset">
+                <Slider
+                  defaultValue={props.mainInfo.kg}
+                  //getAriaValueText={valuetext}
+                  onChange={props.handleChange('kg')}
+                  //onChangeCommitted={handleChange('kg')}
+                  aria-labelledby="kg"
+                  step={1}
+                  //marks={marks.kg}
+                  min={1}
+                  max={200}
+                  name='kg'
+                  valueLabelDisplay='on'
+                />
+              </FormControl>
+            </div>
+          </div>
+        )}
       <div className="exercise__done--actions">
         <Grid container spacing={2}>
           <Grid item xs={6} >

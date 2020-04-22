@@ -46,7 +46,7 @@ let ProfilePage = () => {
         SporterService.getSporterByUserId(getUserIdFromJWT())
             .then((res) => {
                 setValues({ ...values, ...res })
-            }).catch((e) => console.log('trainer not found'))
+            }).catch((e) => console.log('sporter not found'))
     }, [values])
 
     const cancelInvite = (e) => {

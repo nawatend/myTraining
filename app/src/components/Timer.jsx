@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button';
-import msToTime from '../utils/msToTime'
+import { msToTime, msToMinutes } from '../utils/msToTime'
 class Timer extends React.Component {
 
     constructor(props) {
@@ -9,7 +9,7 @@ class Timer extends React.Component {
             time: 0,
             start: 0,
             displayTime: "00:00:00",
-            isOn: false
+            isOn: false,
         }
     }
 
@@ -19,10 +19,14 @@ class Timer extends React.Component {
             start: Date.now() - this.state.time,
             isOn: true
         })
-        this.timer = setInterval(() => this.setState({
-            time: Date.now() - this.state.start,
-            displayTime: msToTime(Date.now() - this.state.start)
-        }), 1);
+        this.timer = setInterval(() => {
+            this.setState({
+                time: Date.now() - this.state.start,
+                displayTime: msToTime(Date.now() - this.state.start),
+            })
+
+            this.props.handleTimer(this.state.time)
+        }, 1);
     }
     stopTimer = () => {
         this.setState({ isOn: false })
@@ -46,7 +50,7 @@ class Timer extends React.Component {
             null
         return (
             <div className="timer">
-                <h3>{this.state.displayTime}</h3>
+                <h2>{this.state.displayTime}</h2>
                 {start}
                 {resume}
                 {stop}

@@ -8,7 +8,8 @@ import Feedback from '../components/Feedback'
 import { withRouter, useHistory, useParams } from 'react-router-dom';
 
 
-import { ExerciseFullService } from '../api'
+import { ExerciseFullService, SporterService } from '../api'
+import { getUserIdFromJWT } from '../utils/jwt'
 
 let TodayExercisesPage = (props) => {
 
@@ -61,6 +62,17 @@ let TodayExercisesPage = (props) => {
     const [almostDone, setAlmostDone] = useState(false)
     const [exercises, setExercises] = useState([])
 
+    const [sporter, setSporter] = useState({})
+
+    const [unfinishedExercises, setUnfinishedExercises] = useState([])
+    const [finishedExercises, setFinishedExercises] = useState([])
+
+    useEffect(() => {
+        SporterService.getSporterByUserId(getUserIdFromJWT())
+            .then((res) => {
+                setSporter(res)
+            }).catch((e) => console.log('sporter not found'))
+    }, [])
 
     useEffect(() => {
 
@@ -75,23 +87,42 @@ let TodayExercisesPage = (props) => {
     }, [workoutsessionId])
 
 
+
+
+
     useEffect(() => {
 
-        console.log(exercises.length)
-
-        let exercisesNotDone = exercises.filter((ex) => {
-            return ex.done === false
-        })
-
-
-        if (exercisesNotDone.length <= 1) {
+        if (unfinishedExercises.length === 0) {
             setAlmostDone(true)
         } else {
             setAlmostDone(false)
         }
 
 
-    }, [exercises, exercises.length])
+    }, [unfinishedExercises])
+
+
+    useEffect(() => {
+
+        let unfinished = exercises.filter((exercise) => {
+            return exercise.done === false
+        })
+
+        let finished = exercises.filter((exercise) => {
+            return exercise.done === true
+        })
+        console.log(unfinished)
+        setUnfinishedExercises(unfinished)
+        setFinishedExercises(finished)
+    }, [exercises])
+
+    useEffect(() => {
+
+        let header = document.getElementById('main__header')
+
+        header.scrollIntoView({ behavior: "smooth" })
+
+    }, [])
 
     return (
         <div className="today__exercises">
@@ -99,12 +130,17 @@ let TodayExercisesPage = (props) => {
                 <Timer />
             </div> */}
             <SubTitle text="Today's exercises" />
-            {exercises.map((data, i) => ((!data.done) ? <ExerciseCard key={i} data={data} /> : null))}
+            {unfinishedExercises.length !== 0 ?
+                (unfinishedExercises.map((data, i) => ((!data.done) ? <ExerciseCard key={i} data={data} /> : null)))
+                :
+                ("Nicely done, you are all done for today!")
+            }
+
             {almostDone &&
-                <Feedback />
+                <Feedback data={{ workoutSessionId: workoutsessionId, sporter: sporter }} />
             }
             <SubTitle text="Completed exercises" />
-            {exercises.map((data, i) => ((data.done) ? <ExerciseCard key={i} data={data} /> : null))}
+            {finishedExercises.map((data, i) => ((data.done) ? <ExerciseCard key={i} data={data} /> : null))}
         </div>
     )
 }
