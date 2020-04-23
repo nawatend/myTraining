@@ -22,8 +22,11 @@ class ExerciseFull {
   }
 
   static async createExerciseFull(body) {
-    console.log(body)
     return axiosInstance.post(`/exercisefulls`, body)
+  }
+
+  static async setDone(body) {
+    return axiosInstance.post(`/exercisefulls/done`, body)
   }
 
   // static async updateExerciseFull(id, body) {

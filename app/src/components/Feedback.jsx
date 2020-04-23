@@ -5,13 +5,13 @@ import Box from '@material-ui/core/Box';
 import CardMedia from '@material-ui/core/CardMedia';
 import Card from '@material-ui/core/Card';
 
-import { Link, useHistory } from 'react-router-dom'
+import { Link, useHistory, useParams } from 'react-router-dom'
 import { Title, SubTitle, Paragraph } from '../components/texts/index'
 import Button from '../components/Button'
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
 
-import { FeedbackService, RateService } from '../api'
+import { FeedbackService, RateService, WorkoutSessionService } from '../api'
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -37,6 +37,7 @@ let Feedback = props => {
     const [rateId, setRateId] = useState()
     const [message, setMessage] = useState()
 
+    console.log(props.data.workoutSessionId)
     const handleChange = event => {
         setFeedbackValue(event.target.value);
     };
@@ -46,9 +47,16 @@ let Feedback = props => {
         let body = {
             message: feedbackValue,
             rateId: rateId,
+            workoutSessionId: props.data.workoutSessionId,
+            trainerId: props.data.sporter.trainer.id
         }
 
         FeedbackService.createFeedback(body)
+            .then((res) => {
+                console.log(res)
+            }).catch((e) => console.log(e))
+
+        WorkoutSessionService.setDone({ workoutSessionId: props.data.workoutSessionId, done: true })
             .then((res) => {
                 console.log(res)
                 setDone(true)
@@ -88,8 +96,13 @@ let Feedback = props => {
 
             }).catch((e) => console.log(e))
 
-        setIsFeedbackSkipped(true)
-        setDone(true)
+        WorkoutSessionService.setDone({ workoutSessionId: props.data.workoutSessionId, done: true })
+            .then((res) => {
+                setIsFeedbackSkipped(true)
+                setDone(true)
+            }).catch((e) => console.log(e))
+
+
         history.push('/')
 
 

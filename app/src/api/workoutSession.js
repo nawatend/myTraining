@@ -35,6 +35,10 @@ class WorkoutSessionService {
 		return data
 	}
 
+	static async setDone(body) {
+    return axiosInstance.post(`/workoutsessions/done`, body)
+	}
+	
 
 
 	static async createWorkoutSession(body) {

@@ -43,17 +43,34 @@ export default function ExerciseCard(props) {
     const [completed, setCompleted] = React.useState(0);
 
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        let progress = () => {
-            setCompleted(prevCompleted => (prevCompleted >= 100 ? 0 : prevCompleted + 10));
+    //     let progress = () => {
+    //         setCompleted(prevCompleted => (prevCompleted >= 100 ? 0 : prevCompleted + 10));
+    //     }
+
+    //     const timer = setInterval(progress, 1000);
+    //     return () => {
+    //         clearInterval(timer);
+    //     };
+    // }, [])
+
+
+    const [progress, setProgress] = useState(0);
+
+    useEffect(() => {
+        const tick = () => {
+            // reset when reaching 100%
+            if (progress !== props.data.performance) {
+                setProgress((oldProgress) => (oldProgress >= props.data.performance ? props.data.performance : oldProgress + 2));
+            }
         }
 
-        const timer = setInterval(progress, 1000);
+        const timer = setInterval(tick, 20);
         return () => {
             clearInterval(timer);
         };
-    }, [])
+    }, [progress, props.data.performance]);
 
 
     return (
@@ -73,15 +90,13 @@ export default function ExerciseCard(props) {
                             <div className="subHeader">{`${props.data.kg} kg`}</div>
                             <div className="subHeader">{`${props.data.sets} sets`}</div>
                         </div>)}
-
                 >
-
 
                 </CardHeader>
             </Link>
             <div className="card__exercise__expand">
                 {props.data.done &&
-                    <CircularProgress className="exercise__progress" variant="static" value={80} />
+                    <CircularProgress className="exercise__progress" variant="static" value={progress} />
                 }
                 {/* <CircularProgress className="exercise__progress" variant="static" value={80} /> */}
                 {/* <CardActions className="card__exercise--expand" disableSpacing>

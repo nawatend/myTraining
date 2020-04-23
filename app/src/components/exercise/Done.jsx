@@ -89,9 +89,6 @@ export default function ExerciseDone(props) {
   })
 
 
-  console.log(props.mainInfo)
-
-
   return (
     <div className="exercise__done">
 

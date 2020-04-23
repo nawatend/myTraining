@@ -15,7 +15,7 @@ export default function WorkoutCard(props) {
             <CardActionArea className="card__workout__ActionArea">
                 <CardMedia
                     className="card__workout__media"
-                    image={`http://res.cloudinary.com/filesmytraining/image/upload/f_auto,q_auto/v1/images/skr_odh78c`}
+                    image={`http://res.cloudinary.com/filesmytraining/image/upload/f_auto,q_auto/v1/${props.workoutSession.imageName}`}
                     title="bag squad"
                 />
                 <CardContent className="card__workout__content">

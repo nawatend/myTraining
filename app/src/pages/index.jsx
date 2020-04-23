@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import BaseLayout from '../layouts/base';
 
 
-
+import Button from '../components/Button'
 import WorkoutCard from '../components/WorkoutCard'
 import ExerciseCard from '../components/ExerciseCard'
 import HorizontalContainer from '../components/HorizontalContainer'
@@ -22,6 +22,9 @@ let HomePage = (props) => {
     const [values, setValues] = useState({})
     const [workoutSessions, setWorkoutSessions] = useState([])
     const [workoutProgramId, setWorkoutProgramId] = useState(null)
+    const [finishedWSs, setFinishedWSs] = useState([])
+    const [unfinishedWSs, setUnfinishedWSs] = useState([])
+    const [reset, setReset] = useState(false)
 
     useEffect(() => {
         SporterService.getSporterByUserId(getUserIdFromJWT())
@@ -38,24 +41,68 @@ let HomePage = (props) => {
                 setWorkoutSessions([...res])
             }).catch((e) => console.log('sessions not found'))
 
-    }, [workoutProgramId])
+    }, [workoutProgramId, reset])
+
+
+    useEffect(() => {
+
+        let unfinished = workoutSessions.filter((ws) => {
+            return ws.done === false
+        })
+
+        let finished = workoutSessions.filter((ws) => {
+            return ws.done === true
+        })
+        console.log(unfinished)
+        setUnfinishedWSs(unfinished)
+        setFinishedWSs(finished)
+    }, [workoutSessions])
+
+    let resetWSs = () => {
+
+        workoutSessions.forEach(ws => {
+
+            WorkoutSessionService.setDone({ workoutSessionId: ws.id, done: false })
+                .then((res) => {
+                    setReset(true)
+                })
+        })
+
+
+    }
 
     return (
         <div className="home">
 
             <SubTitle text="Choose today's session" />
-            <HorizontalContainer>
 
-                {workoutSessions.map((workoutSession,id) => {
-                    return <WorkoutCard key={id} workoutSession={workoutSession} />
-                })
-                }
+            {(unfinishedWSs.length === 0) ? (
 
-            </HorizontalContainer>
+                <div className="reset">
+                    <div className="reset__text"> "You have all of the sessions, please reset"
+                        </div>
+                    <Button onClick={() => { resetWSs() }} text="RESET" />
+                </div>
+            )
+                :
+                (
+                    <HorizontalContainer>
+                        {unfinishedWSs.map((workoutSession, id) => {
+                            return <WorkoutCard key={id} workoutSession={workoutSession} />
+                        })}
+                    </HorizontalContainer>
+                )
+            }
+
+
+
 
             <SubTitle text="Completed sessions" />
             <HorizontalContainer>
-                
+                {finishedWSs.map((workoutSession, id) => {
+                    return <WorkoutCard key={id} workoutSession={workoutSession} />
+                })
+                }
             </HorizontalContainer>
         </div>
     )

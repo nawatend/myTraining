@@ -67,6 +67,10 @@ let ExerciseDetailPage = () => {
     }, [])
 
 
+    useEffect(() => {
+        setResults({ time: exerciseInfo.time, sets: exerciseInfo.sets, reps: exerciseInfo.reps, kg: exerciseInfo.kg })
+    }, [exerciseInfo.kg, exerciseInfo.reps, exerciseInfo.sets, exerciseInfo.time])
+
     const handleDone = () => {
         console.log('done is cliekd ')
 
@@ -83,27 +87,47 @@ let ExerciseDetailPage = () => {
         console.log('fisnihed is cliekd ')
         //TODO save result to db
 
+        let performance = 0
+
+        if (exerciseInfo.exerciseBase.type === "time") {
+            performance = results.time / exerciseInfo.time
+
+        } else {
+
+            performance = ((results.reps / exerciseInfo.reps)
+                + (results.sets / exerciseInfo.sets)
+                + (results.kg / exerciseInfo.kg)) / 3
+        }
+
+
         let body = {
             sporterId: sporter.id,
             exerciseFullId: exerciseInfo.id,
             sets: results.sets,
             reps: results.reps,
             kg: results.kg,
-            time: results.time
+            time: results.time,
+            performance: (performance * 100 >= 100) ? 100 : performance * 100
         }
+
 
         ProgressService.createProgress(body)
             .then((res) => {
                 console.log(res)
-                
             })
             .catch((e) => console.log(e))
 
-        setFinished(true)
-        history.push('/today/' + workoutSessionId)
+
+        console.log(performance)
+
+        ExerciseFullService.setDone({ exerciseFullId: exerciseFullId, done: true, performance: (performance * 100 >= 100) ? 100 : performance * 100 })
+            .then((res) => {
+                console.log(res)
+                setFinished(true)
+                history.push('/today/' + workoutSessionId)
+            })
 
 
-        //TODO update exerciseFull to done
     }
 
     const handleTimer = (value) => {

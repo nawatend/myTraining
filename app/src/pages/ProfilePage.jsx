@@ -76,7 +76,7 @@ let ProfilePage = () => {
                 <Button text="edit" variant="text" />
             </div>
             <div className="profile__detail--avatar">
-                <Avatar alt={values.user.fullName} src="/static/images/avatar/1.jpg" className={classes.large} />
+                <Avatar alt={values.user.fullName} src={`http://res.cloudinary.com/filesmytraining/image/upload/f_auto,q_auto/v1/${values.user.imageName}`} className={classes.large} />
                 <Title text={values.user.fullName} />
             </div>
             <Divider variant="middle" />
@@ -86,7 +86,7 @@ let ProfilePage = () => {
                     <div className="profile__detail--trainer">
                         <div className="profile__detail--trainer--request"  >
                             <TextAndLabel label="Trainer" text={"Invite from: " + values.trainer.user.fullName} />
-                            <Avatar alt={values.trainer.user.fullName} src="/static/images/avatar/1.jpg" className={classes.small} />
+                            <Avatar alt={values.trainer.user.fullName} src={`http://res.cloudinary.com/filesmytraining/image/upload/f_auto,q_auto/v1/${values.trainer.user.imageName}`} className={classes.small} />
                         </div>
                         <div className="profile__detail--trainer--action" >
                             <Button text="Accept" variant="contained" onClick={(e) => acceptInvite(e)} /> <Button text="Cancel" variant="text" onClick={cancelInvite} />
@@ -99,7 +99,7 @@ let ProfilePage = () => {
                     <div className="profile__detail--trainer">
                         <div className="profile__detail--trainer--request"  >
                             <TextAndLabel label="Trainer" text={values.trainer.user.fullName + ": " + values.trainer.focus} />
-                            <Avatar alt={values.trainer.user.fullName} src="/static/images/avatar/1.jpg" className={classes.small} />
+                            <Avatar alt={values.trainer.user.fullName} src={`http://res.cloudinary.com/filesmytraining/image/upload/f_auto,q_auto/v1/${values.trainer.user.imageName}`} className={classes.small} />
                         </div>
                     </div>
                 }
