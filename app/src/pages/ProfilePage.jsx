@@ -62,7 +62,7 @@ let ProfilePage = () => {
 
     const acceptInvite = (e) => {
         e.preventDefault()
-        console.log('come again')
+        //console.log('come again')
         SporterService.acceptInvite({ sporterId: values.id, trainerId: values.trainer.id, acceptTrainer: true })
             .then(res => {
                 setValues({ ...values, acceptInvite: true })

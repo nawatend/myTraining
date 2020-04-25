@@ -59,6 +59,16 @@ class SporterService {
 		return axiosInstance.post(`/sporters/update`, body)
 	}
 
+	static async acceptInvite(body) {
+
+		return axiosInstance.post(`/sporters/invite/accept`, body)
+	}
+
+
+	static async cancelInvite(body) {
+
+		return axiosInstance.post(`/sporters/invite/cancel`, body)
+	}
 	// static async updateSporter(id, body) {
 	//     return axiosInstance.put(`sporters/${id}`, body)
 	// } 
