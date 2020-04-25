@@ -79,7 +79,7 @@ let HomePage = (props) => {
             {(unfinishedWSs.length === 0) ? (
 
                 <div className="reset">
-                    <div className="reset__text"> "You have all of the sessions, please reset"
+                    <div className="reset__text"> You have all done, please reset
                         </div>
                     <Button onClick={() => { resetWSs() }} text="RESET" />
                 </div>

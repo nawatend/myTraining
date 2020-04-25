@@ -35,7 +35,7 @@ export default function TabsMenu(props) {
                 textColor="primary"
                 centered
             >
-                <Tab label="DAY" />
+                
                 <Tab label="WEEK" />
                 <Tab label="MONTH" />
                 <Tab label="YEAR" />

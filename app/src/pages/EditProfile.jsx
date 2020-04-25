@@ -82,7 +82,7 @@ const marks = {
 };
 
 
-let RegisterPage = () => {
+let EditProfilePage = () => {
 
     let history = useHistory();
 
@@ -102,7 +102,7 @@ let RegisterPage = () => {
         age: 20,
         showPassword: false,
         role: "sporter",
-        imageName: "images/profile_a49yr7"
+        imageName: "images/skr_wcjk4w"
     })
 
     const handleClickShowPassword = () => {
@@ -150,14 +150,15 @@ let RegisterPage = () => {
 
     }, [history])
 
-    const registerUser = (e) => {
+    const updateUser = (e) => {
         e.preventDefault()
 
-        UserService.createUser(userInfo)
-            .then((response) => {
-                console.log("pushed")
-                history.push("/")
-            }).catch((e) => console.log('failed registration'))
+        //TODO update user
+        // UserService.createUser(userInfo)
+        //     .then((response) => {
+        //         console.log("pushed")
+        //         history.push("/")
+        //     }).catch((e) => console.log('failed registration'))
     }
 
     function getStepContent(step) {
@@ -261,7 +262,6 @@ let RegisterPage = () => {
 
     return (
         <div className="App main__app">
-            <Header />
             <main className="main__content">
                 <div className="register">
                     <div className={classes.root}>
@@ -285,7 +285,7 @@ let RegisterPage = () => {
                                                 <Button
                                                     variant="contained"
                                                     color="primary"
-                                                    onClick={(activeStep === steps.length - 1) ? registerUser : handleNext}
+                                                    onClick={(activeStep === steps.length - 1) ? updateUser : handleNext}
                                                     className={classes.button}
                                                 >
                                                     {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
@@ -303,4 +303,4 @@ let RegisterPage = () => {
 
     )
 }
-export default RegisterPage
+export default EditProfilePage

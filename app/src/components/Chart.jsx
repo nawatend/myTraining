@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 //chart
 import { Bar } from 'react-chartjs-2'
 import getLabels from '../utils/labels'
+
 export default function Chart({ labelType = "day", data = [], name = "Label", averageName = "average name", type = "reps", color = "#FF772E" }) {
     let getStepSize = (values) => {
 
@@ -18,23 +19,53 @@ export default function Chart({ labelType = "day", data = [], name = "Label", av
         day: 7,
         week: 4,
         month: 12,
-        year: 4
+        year: 5
     }
 
 
     const [labels, setLabels] = useState(getLabels()[labelType])
-    const [scopeDay, setScopeDay] = useState(data.day.length - 7)
-    const [startScope, setStartScope] = useState(data.day.length)
-    const [chartData, setChartData] = useState([])
-    const [stepSize, setStepSize] = useState(getStepSize(data[labelType]))
 
-   
+    const [mainScope, setMainScope] = useState({
+        day: {
+            start: data.day.length,
+            end: data.day.length - 7
+        },
+        week: {
+            start: data.week.length,
+            end: data.week.length - 4
+        },
+        month: {
+            start: data.month.length,
+            end: 0
+        },
+        year: {
+            start: data.day.length,
+            end: data.day.length - 5
+        }
+    })
+    const [chartData, setChartData] = useState([])
+    const [stepSize, setStepSize] = useState(getStepSize(data.day))
 
 
     useEffect(() => {
         if (labelType === "day") {
             //console.log(data.day)
-            setChartData(data.day.slice(scopeDay, startScope))
+            setChartData(data.day.slice(mainScope.day.end, mainScope.day.start))
+        }
+
+        if (labelType === "week") {
+            //console.log(data.day)
+            setChartData(data.week.slice(mainScope.week.end, mainScope.week.start))
+        }
+        if (labelType === "month") {
+            //console.log(data.day)
+            setChartData(data.month.slice(mainScope.month.end, mainScope.month.start))
+        }
+
+        console.log(getLabels())
+        if (labelType === "year") {
+            //console.log(data.day)
+            setChartData(data.year)
         }
     }, [data])
 

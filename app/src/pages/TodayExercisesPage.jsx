@@ -136,7 +136,7 @@ let TodayExercisesPage = (props) => {
                 ("Nicely done, you are all done for today!")
             }
 
-            {almostDone &&
+            {exercises[0] && almostDone && !exercises[0].workoutSession.done &&
                 <Feedback data={{ workoutSessionId: workoutsessionId, sporter: sporter }} />
             }
             <SubTitle text="Completed exercises" />

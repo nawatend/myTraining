@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import BaseLayout from '../layouts/base';
 import { withRouter, useHistory } from 'react-router-dom';
 import Avatar from '@material-ui/core/Avatar';
-import { makeStyles, Divider } from '@material-ui/core';
+import { makeStyles, Divider, Grid } from '@material-ui/core';
 import { Title, SubTitle, TextAndLabel } from '../components/texts'
 import Button from '../components/Button'
 
@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
 let ProfilePage = () => {
     const classes = useStyles();
 
+    const history = useHistory()
     const [values, setValues] = useState({
         user: {},
         trainer: { user: {} },
@@ -73,7 +74,7 @@ let ProfilePage = () => {
     return (
         <div className="profile">
             <div className="action__edit">
-                <Button text="edit" variant="text" />
+                <Button text="edit" variant="text" onClick={() => history.push("/profile/edit")} />
             </div>
             <div className="profile__detail--avatar">
                 <Avatar alt={values.user.fullName} src={`http://res.cloudinary.com/filesmytraining/image/upload/f_auto,q_auto/v1/${values.user.imageName}`} className={classes.large} />
@@ -114,9 +115,32 @@ let ProfilePage = () => {
 
 
                 <Divider variant="middle" />
-                <TextAndLabel label="Goal" text={values.goal} />
-                <TextAndLabel label="Days trained streak" text={values.daysTrainedStreak} />
-                <TextAndLabel label="Days trained" text={values.daysTrained} />
+
+                <Grid container spacing={2} >
+                    <Grid item xs={12}>
+                        <TextAndLabel label="Goal" text={values.goal} />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextAndLabel label="Height" text={values.height + " cm"} />
+                    </Grid>
+
+                    <Grid item xs={6}>
+                        <TextAndLabel label="Weight" text={values.weight + " kg"} />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextAndLabel label="Days trained" text={values.daysTrained} />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                        <TextAndLabel label="Days trained streak" text={values.daysTrainedStreak} />
+                    </Grid>
+
+                </Grid>
+
+
+
+
+
             </div>
         </div>
     )

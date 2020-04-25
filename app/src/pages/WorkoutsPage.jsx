@@ -16,6 +16,7 @@ let WorkoutsPage = () => {
     const [values, setValues] = useState({})
 
     const [workoutSessions, setWorkoutSessions] = useState([])
+    const [freeWorkoutSessions, setFreeWorkoutSessions] = useState([])
     const [workoutProgramId, setWorkoutProgramId] = useState(null)
 
     useEffect(() => {
@@ -37,11 +38,23 @@ let WorkoutsPage = () => {
 
 
 
+    useEffect(() => {
+        WorkoutSessionService.getWorkoutSessionsByFree()
+            .then((res) => {
+                console.log(res)
+                setFreeWorkoutSessions([...res])
+            }).catch((e) => console.log('free sessions not found'))
+
+    }, [workoutSessions])
+
+
+
+
     return (
         <div className="workouts">
             <SubTitle text="Yours trainer's workout programs" />
             <HorizontalContainer>
-            {workoutSessions.map((workoutSession,id) => {
+                {workoutSessions.map((workoutSession, id) => {
                     return <WorkoutCard key={id} workoutSession={workoutSession} />
                 })
                 }
@@ -49,7 +62,11 @@ let WorkoutsPage = () => {
 
             <SubTitle text="Free workout programs" />
             <HorizontalContainer>
-               
+
+            {freeWorkoutSessions.map((workoutSession, id) => {
+                    return <WorkoutCard key={id} workoutSession={workoutSession} />
+                })
+                }
             </HorizontalContainer>
         </div>
     )

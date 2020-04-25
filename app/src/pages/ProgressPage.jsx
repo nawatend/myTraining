@@ -1,24 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from 'react'
-import BaseLayout from '../layouts/base';
-import TabsMenu from '../components/Tabs'
-import Select from '@material-ui/core/Select';
-
-import { makeStyles } from '@material-ui/core/styles';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormHelperText from '@material-ui/core/FormHelperText';
+import { Grid } from '@material-ui/core';
 import FormControl from '@material-ui/core/FormControl';
-import NativeSelect from '@material-ui/core/NativeSelect';
-import MenuItem from '@material-ui/core/MenuItem'
-
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+import { makeStyles } from '@material-ui/core/styles';
+import React, { useEffect, useState } from 'react';
+import { withRouter } from 'react-router-dom';
+import { ProgressService, SporterService } from '../api';
 //chart
-import Chart from '../components/Chart'
-import Chartv from '../components/Chartv'
+import Chart from '../components/Chart';
+import TabsMenu from '../components/Tabs';
+import { TextAndLabel } from '../components/texts';
+import { getDayNumber, getWeekNumber } from '../utils/getDayNumber';
+import { getUserIdFromJWT } from '../utils/jwt';
 
-import { SporterService, ProgressService } from '../api'
-import { getUserIdFromJWT } from '../utils/jwt'
-import { getDayNumber } from '../utils/getDayNumber'
-import { withRouter, useHistory } from 'react-router-dom';
+
 
 const useStyles = makeStyles(theme => ({
     formControl: {
@@ -46,7 +43,12 @@ let ProgressPage = () => {
 
     const [currentProgresses, setCurrentProgresses] = useState([])
 
+    //datas
     const [dayData, setDayData] = useState(Array(getDayNumber(new Date())).fill(0))
+    const [weekData, setWeekData] = useState(Array(getWeekNumber(new Date()) + 1).fill(0))
+    const [monthData, setMonthData] = useState(Array(new Date().getMonth() + 1).fill(0))
+    const [yearData, setYearData] = useState(Array(5).fill(0))
+
 
     useEffect(() => {
 
@@ -70,7 +72,6 @@ let ProgressPage = () => {
             progresses.forEach(progress => {
                 //push unique
                 if (EBs.find(eb => eb.id === progress.exerciseFull.exerciseBase.id) === undefined) {
-
                     EBs.push(progress.exerciseFull.exerciseBase)
                 }
             });
@@ -85,30 +86,90 @@ let ProgressPage = () => {
 
 
     useEffect(() => {
-
         let filter = progresses.filter((progress) => {
             return progress.exerciseFull.exerciseBase.id === exerciseBase.id
         })
-
-
         setCurrentProgresses(filter)
     }, [exerciseBase.id, progresses])
 
     useEffect(() => {
-
-        let updateDays = [...dayData]
+        let updateDays = Array(getDayNumber(new Date())).fill(0)
         currentProgresses.forEach(cp => {
-            updateDays[getDayNumber(cp.createdAt) - 1] = cp.kg
+            if (exerciseBase.type === "time") {
+                updateDays[getDayNumber(cp.createdAt) - 1] = cp.time
+            } else {
+                updateDays[getDayNumber(cp.createdAt) - 1] = cp.kg
+            }
         })
 
-        console.log(dayData)
+        //let updatedDays = [...dayData]
+        let updateWeek = [...weekData]
+        const step = 6
+
+
+        weekData.forEach((w, i) => {
+            let weekTot = 0
+            //     console.log("Week", i)
+            //    console.log(i * 7 + " - " + (i * 7 + step))
+            for (let n = i * 7; n <= (i * 7 + step); n++) {
+
+                weekTot += (updateDays[n]) ? updateDays[n] : 0
+            }
+            updateWeek[i] = parseInt(weekTot / currentProgresses.length)
+            weekTot = 0
+        })
+
+        //console.log(updateWeek)
+
+
+        let goodWeek = [...updateWeek].slice(1, updateWeek.length)
+        let updateMonth = [...monthData]
+        const monthStep = 3
+
+        monthData.forEach((m, i) => {
+
+            //console.log("month", i)
+            let monthTot = 0
+            //console.log(i * 4 + " - " + (i * 4 + monthStep))
+            for (let n = i * 4; n <= (i * 4 + monthStep); n++) {
+
+                monthTot += (goodWeek[n]) ? goodWeek[n] : 0
+            }
+
+            updateMonth[i] = parseInt(monthTot / currentProgresses.length)
+            monthTot = 0
+
+        })
+
+        let updateYear = [...yearData]
+
+
+        yearData.forEach((m, i) => {
+            //console.log("month", i)
+            let yearTot = 0
+            //console.log(i * 4 + " - " + (i * 4 + monthStep))
+            for (let n = 0; n <= updateMonth.length; n++) {
+                yearTot += (updateMonth[n]) ? updateMonth[n] : 0
+            }
+            updateYear[i] = parseInt(yearTot / currentProgresses.length)
+            yearTot = 0
+        })
+        console.log(updateMonth)
+        console.log(updateYear)
+
+
+        setYearData(updateYear)
+        setMonthData(updateMonth)
+        setWeekData(updateWeek)
         setDayData(updateDays)
     }, [currentProgresses])
 
 
+
+
     const handleChange = event => {
 
-        setExerciseBaseId([event.target.value])
+        setExerciseBaseId(event.target.value)
         setExerciseBase({ ...exerciseBases[event.target.value] })
     };
 
@@ -137,8 +198,20 @@ let ProgressPage = () => {
 
             <TabsMenu onChange={handleTabsChange} />
 
-            <Chart labelType={chartType} name={exerciseBase.title} averageName="Average Kg" data={{ day: [...dayData] }} />
+            {exerciseBase.type !== "time" ?
+                (<Chart labelType={chartType} name={exerciseBase.title} averageName="Average Kg" data={{ day: [...dayData], week: [...weekData], month: [...monthData], year: [...yearData] }} />)
+                :
+                (<Chart labelType={chartType} name={exerciseBase.title} averageName="Average Minutes" data={{ day: [...dayData], week: [...weekData], month: [...monthData], year: [...yearData] }} />)
+            }
+
+
             {/* <Chart labelType={chartType} name={exerciseBase.title} averageName="Average performance" color="#0F4C75" data={[2, 10, 5, 2, 20, 30, 55, 70, 24.2, 63, 49, 10]} /> */}
+
+            <Grid container spacing={2} >
+                <Grid item xs={12}>
+                    <TextAndLabel label={exerciseBase.title} text={currentProgresses.length + " times"} />
+                </Grid>
+            </Grid>
 
         </div>
     )

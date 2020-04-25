@@ -22,6 +22,13 @@ class WorkoutSessionService {
 		return data
 	}
 
+	static async getWorkoutSessionsByFree() {
+		const res = await axiosInstance.get(`/workoutsessions/all/free`)
+		const data = await res.data
+		return data
+	}
+
+
 	static async getWorkoutSessionsByWorkoutProgram(id) {
 		const res = await axiosInstance.get(`/workoutsessions/workoutprogram/${id}`)
 		const data = await res.data

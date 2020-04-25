@@ -9,6 +9,7 @@ import TodayExercisesPage from '../pages/TodayExercisesPage'
 import WorkoutsPage from '../pages/WorkoutsPage'
 import LoginPage from '../pages/Login'
 import RegisterPage from '../pages/Register';
+import EditProfilePage from '../pages/EditProfile';
 
 import BaseLayout from '../layouts/base';
 import { default as RouteWithLayout } from '../components/RouteWithLayout';
@@ -27,6 +28,7 @@ let router = () => {
                 <RouteWithLayout exact layout={BaseLayout} path="/workouts" component={WorkoutsPage} />
                 <RouteWithLayout exact layout={BaseLayout} path="/progress" component={ProgressPage} />
                 <RouteWithLayout exact layout={BaseLayout} path="/profile" component={ProfilePage} />
+                <RouteWithLayout exact layout={BaseLayout} path="/profile/edit" component={EditProfilePage} />
             </Switch>
         </Router>
     )

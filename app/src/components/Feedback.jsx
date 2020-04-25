@@ -74,11 +74,8 @@ let Feedback = props => {
             .then((res) => {
                 console.log(res)
                 setRateId(res.data.id)
-
             }).catch((e) => console.log(e))
-
         setIsFeedbackSkipped(false)
-
     }
 
     const skipFeedback = () => {
