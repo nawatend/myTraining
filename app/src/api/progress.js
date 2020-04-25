@@ -20,6 +20,12 @@ class Progress {
     return axiosInstance.post(`/progresses`, body)
   }
 
+  static async getProgressesBySporter(id) {
+    const res = await axiosInstance.get(`/progresses/sporter/${id}`)
+    const data = await res.data
+    return data
+  }
+
   // static async updateProgress(id, body) {
   //     return axiosInstance.put(`progresses/${id}`, body)
   // } 

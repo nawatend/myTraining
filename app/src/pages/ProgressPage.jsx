@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react'
 import BaseLayout from '../layouts/base';
 import TabsMenu from '../components/Tabs'
@@ -12,8 +13,12 @@ import MenuItem from '@material-ui/core/MenuItem'
 
 //chart
 import Chart from '../components/Chart'
+import Chartv from '../components/Chartv'
 
-import {  withRouter, useHistory } from 'react-router-dom';
+import { SporterService, ProgressService } from '../api'
+import { getUserIdFromJWT } from '../utils/jwt'
+import { getDayNumber } from '../utils/getDayNumber'
+import { withRouter, useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
     formControl: {
@@ -29,13 +34,82 @@ let ProgressPage = () => {
 
     const classes = useStyles();
 
-    const [exerciseId, setExerciseId] = useState(10)
+    const [exerciseBase, setExerciseBase] = useState({})
+    const [exerciseBaseId, setExerciseBaseId] = useState(0)
     const [chartType, setChartType] = useState("day")
+
+    const [exerciseBases, setExerciseBases] = useState([])
+
+    const [progresses, setProgresses] = useState([])
+    const [sporter, setSporter] = useState({})
+    const [loading, setLoading] = useState(true)
+
+    const [currentProgresses, setCurrentProgresses] = useState([])
+
+    const [dayData, setDayData] = useState(Array(getDayNumber(new Date())).fill(0))
+
     useEffect(() => {
 
+        SporterService.getSporterByUserId(getUserIdFromJWT())
+            .then((res) => {
+                setSporter({ ...res })
+            }).catch((e) => console.log('sporter not found'))
     }, [])
+
+    useEffect(() => {
+        ProgressService.getProgressesBySporter(sporter.id)
+            .then((res) => {
+                setProgresses([...res])
+            })
+    }, [sporter.id])
+
+
+    useEffect(() => {
+        let EBs = []
+        if (progresses.length >= 1) {
+            progresses.forEach(progress => {
+                //push unique
+                if (EBs.find(eb => eb.id === progress.exerciseFull.exerciseBase.id) === undefined) {
+
+                    EBs.push(progress.exerciseFull.exerciseBase)
+                }
+            });
+        }
+        setExerciseBases(EBs)
+        setLoading(false)
+    }, [progresses, progresses.length])
+
+    useEffect(() => {
+        setExerciseBase({ ...exerciseBases[0] })
+    }, [exerciseBases])
+
+
+    useEffect(() => {
+
+        let filter = progresses.filter((progress) => {
+            return progress.exerciseFull.exerciseBase.id === exerciseBase.id
+        })
+
+
+        setCurrentProgresses(filter)
+    }, [exerciseBase.id, progresses])
+
+    useEffect(() => {
+
+        let updateDays = [...dayData]
+        currentProgresses.forEach(cp => {
+            updateDays[getDayNumber(cp.createdAt) - 1] = cp.kg
+        })
+
+        console.log(dayData)
+        setDayData(updateDays)
+    }, [currentProgresses])
+
+
     const handleChange = event => {
-        setExerciseId(event.target.value)
+
+        setExerciseBaseId([event.target.value])
+        setExerciseBase({ ...exerciseBases[event.target.value] })
     };
 
 
@@ -50,22 +124,21 @@ let ProgressPage = () => {
                 <Select
                     labelId="demo-simple-select-filled-label"
                     id="demo-simple-select-filled"
-                    value={exerciseId ? exerciseId : 10}
+                    value={exerciseBaseId ? exerciseBaseId : 0}
 
                     onChange={handleChange}
                 >
-                    <MenuItem value="">
-                        <em>None</em>
-                    </MenuItem>
-                    
-                    <MenuItem value={10}>Squat</MenuItem>
-                    <MenuItem value={20}>Running</MenuItem>
-                    <MenuItem value={30}>Benchpress</MenuItem>
+                    {exerciseBases.map((eb, id) => {
+                        return <MenuItem key={id} value={id}>{eb.title}</MenuItem>
+                    })
+                    }
                 </Select>
             </FormControl>
 
             <TabsMenu onChange={handleTabsChange} />
-            <Chart labelType={chartType} data={[2, 10, 5, 2, 20, 30, 55, 70, 24.2, 63, 49, 10]} />
+
+            <Chart labelType={chartType} name={exerciseBase.title} averageName="Average Kg" data={{ day: [...dayData] }} />
+            {/* <Chart labelType={chartType} name={exerciseBase.title} averageName="Average performance" color="#0F4C75" data={[2, 10, 5, 2, 20, 30, 55, 70, 24.2, 63, 49, 10]} /> */}
 
         </div>
     )
