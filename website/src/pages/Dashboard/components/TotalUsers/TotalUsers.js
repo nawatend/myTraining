@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/styles';
 import { Card, CardContent, Grid, Typography, Avatar } from '@material-ui/core';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import PeopleIcon from '@material-ui/icons/PeopleOutlined';
-
+import AssignmentIcon from '@material-ui/icons/Assignment';
 const useStyles = makeStyles(theme => ({
   root: {
     height: '100%'
@@ -40,7 +40,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const TotalUsers = props => {
+const TotalWorkoutSession = props => {
   const { className, ...rest } = props;
 
   const classes = useStyles();
@@ -62,29 +62,29 @@ const TotalUsers = props => {
               gutterBottom
               variant="body2"
             >
-              TOTAL USERS
+              WORKOUT SESSIONS
             </Typography>
-            <Typography variant="h3">1,600</Typography>
+            <Typography variant="h3"> {props.total}</Typography>
           </Grid>
           <Grid item>
             <Avatar className={classes.avatar}>
-              <PeopleIcon className={classes.icon} />
+              <AssignmentIcon className={classes.icon} />
             </Avatar>
           </Grid>
         </Grid>
         <div className={classes.difference}>
-          <ArrowUpwardIcon className={classes.differenceIcon} />
-          <Typography
+          {/* <ArrowUpwardIcon className={classes.differenceIcon} /> */}
+          {/* <Typography
             className={classes.differenceValue}
             variant="body2"
           >
             16%
-          </Typography>
+          </Typography> */}
           <Typography
             className={classes.caption}
             variant="caption"
           >
-            Since last month
+           Add more workout sessions
           </Typography>
         </div>
       </CardContent>
@@ -92,8 +92,8 @@ const TotalUsers = props => {
   );
 };
 
-TotalUsers.propTypes = {
+TotalWorkoutSession.propTypes = {
   className: PropTypes.string
 };
 
-export default TotalUsers;
+export default TotalWorkoutSession;

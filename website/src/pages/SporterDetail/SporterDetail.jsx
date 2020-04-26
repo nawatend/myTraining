@@ -1,28 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Link as RouterLink, withRouter, useHistory, Redirect, useParams } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import validate from 'validate.js';
-import { makeStyles } from '@material-ui/styles';
-import {
-  Grid,
-  Button,
-  IconButton,
-  TextField,
-  Link,
-  FormHelperText,
-  Checkbox,
-  Typography,
-  Divider
-} from '@material-ui/core';
+import { Button, Divider, Grid, IconButton, Typography, TextField } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import { CloudinaryContext, Image, Video, Transformation } from "cloudinary-react";
+import { makeStyles } from '@material-ui/styles';
+import { CloudinaryContext, Image } from "cloudinary-react";
 import moment from 'moment';
+import React, { useEffect, useState } from 'react';
+import { Redirect, useParams, withRouter } from 'react-router-dom';
+
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 
 //api
-import { ExerciseBaseService, SporterService, TrainerService } from '../../services/api'
+import { SporterService, ProgressService } from '../../services/api';
+import { getDayNumber, getWeekNumber } from '../../utils/getDayNumber';
+import { getUserIdFromJWT } from '../../utils/jwt';
 
-//jwt authen
-import { isJWTValid, getTrainerIdFromJWT } from '../../utils/jwt'
+//chart
+import Chart from './Chart';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -164,7 +159,7 @@ const schema = {
   // }
 };
 
-let ExerciseDetail = (props) => {
+let SporterDetail = (props) => {
   const { history } = props;
   const { id } = useParams()
 
@@ -186,13 +181,31 @@ let ExerciseDetail = (props) => {
     user: {}
   })
 
+  const [exerciseBase, setExerciseBase] = useState({})
+  const [exerciseBaseId, setExerciseBaseId] = useState(0)
+  const [chartType, setChartType] = useState("day")
+
+  const [exerciseBases, setExerciseBases] = useState([])
+
+  const [progresses, setProgresses] = useState([])
+  const [sporter, setSporter] = useState({})
+
+  const [currentProgresses, setCurrentProgresses] = useState([])
+
+  //datas
+  const [dayData, setDayData] = useState(Array(getDayNumber(new Date())).fill(0))
+  const [weekData, setWeekData] = useState(Array(getWeekNumber(new Date()) + 1).fill(0))
+  const [monthData, setMonthData] = useState(Array(new Date().getMonth() + 1).fill(0))
+  const [yearData, setYearData] = useState(Array(5).fill(0))
+
+
   useEffect(() => {
     if (loading) {
       SporterService.getSporterById(id)
         .then((res) => {
           setValues({ ...values, ...res, trainerId: res.trainer.id })
-          setLoading(false)
-          console.log(res)
+          setSporter(res)
+          //console.log(res)
         }).catch(error => {
           console.log(error)
           history.push('/sporters')
@@ -200,8 +213,121 @@ let ExerciseDetail = (props) => {
     }
   }, [])
 
-  const handleEdit = () => {
-    history.push('/sporters/edit/' + id)
+  useEffect(() => {
+    ProgressService.getProgressesBySporter(sporter.id)
+      .then((res) => {
+       // console.log(res)
+        setProgresses([...res])
+      })
+  }, [sporter.id])
+
+
+  useEffect(() => {
+    let EBs = []
+    if (progresses.length >= 1) {
+      progresses.forEach(progress => {
+        //push unique
+        if (EBs.find(eb => eb.id === progress.exerciseFull.exerciseBase.id) === undefined) {
+          EBs.push(progress.exerciseFull.exerciseBase)
+        }
+      });
+    }
+    setExerciseBases(EBs)
+    setLoading(false)
+  }, [progresses, progresses.length])
+
+  useEffect(() => {
+    setExerciseBase({ ...exerciseBases[0] })
+  }, [exerciseBases])
+  useEffect(() => {
+    let filter = progresses.filter((progress) => {
+      return progress.exerciseFull.exerciseBase.id === exerciseBase.id
+    })
+    setCurrentProgresses(filter)
+  }, [exerciseBase.id, progresses])
+
+
+
+  useEffect(() => {
+    let updateDays = Array(getDayNumber(new Date())).fill(0)
+    currentProgresses.forEach(cp => {
+      if (exerciseBase.type === "time") {
+        updateDays[getDayNumber(cp.createdAt) - 1] = cp.time
+      } else {
+        updateDays[getDayNumber(cp.createdAt) - 1] = cp.kg
+      }
+    })
+
+    //let updatedDays = [...dayData]
+    let updateWeek = [...weekData]
+    const step = 6
+
+
+    weekData.forEach((w, i) => {
+      let weekTot = 0
+      //     console.log("Week", i)
+      //    console.log(i * 7 + " - " + (i * 7 + step))
+      for (let n = i * 7; n <= (i * 7 + step); n++) {
+
+        weekTot += (updateDays[n]) ? updateDays[n] : 0
+      }
+      updateWeek[i] = parseInt(weekTot / currentProgresses.length)
+      weekTot = 0
+    })
+    //console.log(updateWeek)
+
+    let goodWeek = [...updateWeek].slice(1, updateWeek.length)
+    let updateMonth = [...monthData]
+    const monthStep = 3
+
+    monthData.forEach((m, i) => {
+      //console.log("month", i)
+      let monthTot = 0
+      //console.log(i * 4 + " - " + (i * 4 + monthStep))
+      for (let n = i * 4; n <= (i * 4 + monthStep); n++) {
+        monthTot += (goodWeek[n]) ? goodWeek[n] : 0
+      }
+      updateMonth[i] = parseInt(monthTot / currentProgresses.length)
+      monthTot = 0
+    })
+    let updateYear = [...yearData]
+
+
+    yearData.forEach((m, i) => {
+      //console.log("month", i)
+      let yearTot = 0
+      //console.log(i * 4 + " - " + (i * 4 + monthStep))
+      for (let n = 0; n <= updateMonth.length; n++) {
+        yearTot += (updateMonth[n]) ? updateMonth[n] : 0
+      }
+      updateYear[i] = parseInt(yearTot / currentProgresses.length)
+      yearTot = 0
+    })
+    // console.log(updateMonth)
+    // console.log(updateYear)
+
+
+    setYearData(updateYear)
+    setMonthData(updateMonth)
+    setWeekData(updateWeek)
+    setDayData(updateDays)
+  }, [currentProgresses])
+
+
+  const handleChange = event => {
+
+    setExerciseBaseId(event.target.value)
+    setExerciseBase({ ...exerciseBases[event.target.value] })
+  };
+
+
+
+  const removeTrainer = () => {
+
+    SporterService.removeTrainer({sporterId:sporter.id})
+      .then((res) => {
+        history.push('/sporters')
+      })
   };
 
   const handleBack = () => {
@@ -236,7 +362,7 @@ let ExerciseDetail = (props) => {
                 <Button
                   color="primary"
                   variant="text"
-                  onClick={handleEdit}
+                  onClick={removeTrainer}
                 >
                   Remove
                 </Button>
@@ -264,7 +390,7 @@ let ExerciseDetail = (props) => {
                       <Divider className={classes.divider} />
                       <Grid
                         container
-                        
+
                       >
                         <Grid
                           item
@@ -322,7 +448,7 @@ let ExerciseDetail = (props) => {
 
                         <Grid
                           item
-                          lg={6}
+                          lg={4}
                           xs={12}
                         >
                           <CloudinaryContext cloudName="filesmytraining">
@@ -342,7 +468,7 @@ let ExerciseDetail = (props) => {
 
                     <Grid
                       item
-                      lg={12}
+                      lg={7}
                       xs={12}
                     >
                       <Typography
@@ -352,27 +478,50 @@ let ExerciseDetail = (props) => {
                         Progresses
                             </Typography>
                       <Divider className={classes.divider} />
+
+                      <TextField
+                        className={classes.textField}
+                        fullWidth
+                        label="Select Exercise"
+                        margin="dense"
+                        name="exerciseBaseId"
+                        onChange={handleChange}
+                        select
+                        // eslint-disable-next-line react/jsx-sort-props
+                        SelectProps={{ native: true }}
+                        value={exerciseBaseId ? exerciseBaseId : 0}
+                        variant="outlined"
+                      >
+                        {exerciseBases.map((option, id) => (
+                          <option
+                            key={id}
+                            value={id}
+                          >
+                            {option.title}
+                          </option>
+                        ))}
+                      </TextField>
+
+                      {exerciseBase.type !== "time" ?
+                        (<Chart labelType={chartType} name={exerciseBase.title + ": " + currentProgresses.length + " times"} color="#0F4C75" averageName="Average Kg" data={{ day: [...dayData], week: [...weekData], month: [...monthData], year: [...yearData] }} />)
+                        :
+                        (<Chart labelType={chartType} name={exerciseBase.title + " " + currentProgresses.length + " times"} color="#0F4C75" averageName="Average Minutes" data={{ day: [...dayData], week: [...weekData], month: [...monthData], year: [...yearData] }} />)
+                      }
+                      {/* -------------------------------------------------------------------------------------------end Progreesss */}
+
+                      <Typography
+                        className={classes.textField}
+                        variant="h6"
+                      >
+
+                      </Typography>
+
                       <Typography
                         className={classes.textField}
                         variant="body1"
                       >
                         {values.description}
                       </Typography>
-                    </Grid>
-
-                    <Grid
-                      item
-                      lg={6}
-                      xs={12}
-                    >
-                      <Typography
-                        className={classes.title}
-                        variant="h4"
-                      >
-
-                        Exercise Thumbnail
-                            </Typography>
-                      <Divider className={classes.divider} />
                     </Grid>
                   </Grid>
                 </div>
@@ -386,4 +535,4 @@ let ExerciseDetail = (props) => {
 }
 
 
-export default withRouter(ExerciseDetail);
+export default withRouter(SporterDetail);

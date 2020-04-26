@@ -46,6 +46,10 @@ class WorkoutSessionService {
 		return axiosInstance.put(`/workoutsessions/update`, body)
 	}
 
+	static async cloneWorkoutSession(body) {
+		return axiosInstance.post(`/workoutsessions/clone`, body)
+	}
+
 	// static async updateWorkoutSession(id, body) {
 	//     return axiosInstance.put(`workoutsessions/${id}`, body)
 	// } 

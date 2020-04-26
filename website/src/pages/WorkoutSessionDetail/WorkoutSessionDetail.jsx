@@ -1,30 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Link as RouterLink, withRouter, useHistory, Redirect, useParams } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import validate from 'validate.js';
-import { makeStyles } from '@material-ui/styles';
-import {
-  Grid,
-  Button,
-  IconButton,
-  TextField,
-  Link,
-  FormHelperText,
-  Checkbox,
-  Typography,
-  Divider
-} from '@material-ui/core';
+import { Button, Divider, Grid, IconButton, Typography } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import { CloudinaryContext, Image, Video, Transformation } from "cloudinary-react";
+import { makeStyles } from '@material-ui/styles';
+import { CloudinaryContext, Image } from "cloudinary-react";
 import moment from 'moment';
-
+import React, { useEffect, useState } from 'react';
+import { Redirect, useParams, withRouter } from 'react-router-dom';
 //api
-import { ExerciseBaseService, ExerciseFullService, WorkoutSessionService, TrainerService } from '../../services/api'
+import { ExerciseFullService, WorkoutSessionService } from '../../services/api';
+import ExercisesPreview from './components/ExercisesPreview';
 
-//jwt authen
-import { isJWTValid, getTrainerIdFromJWT } from '../../utils/jwt'
 
-import ExercisesPreview from './components/ExercisesPreview'
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -187,6 +173,25 @@ let WorkoutSessionDetail = (props) => {
     history.push('/workoutsessions/edit/' + id)
   };
 
+
+  const handleClone = () => {
+    console.log('clone')
+    let body = {
+      title: values.title,
+      trainerId: values.trainer.id,
+      type: values.type,
+      cardioLevel: values.cardioLevel,
+      muscleLevel: values.muscleLevel,
+      imageName: values.imageName,
+      free: values.free,
+      exerciseBaseIds: values.exerciseFulls
+    }
+
+    WorkoutSessionService.cloneWorkoutSession(body)
+      .then((res) => {
+        history.push('/workoutsessions/edit/' + res.data.id)
+      })
+  }
   const handleBack = () => {
     history.goBack();
   };
@@ -217,13 +222,23 @@ let WorkoutSessionDetail = (props) => {
                   <ArrowBackIcon />
                 </IconButton>
 
-                <Button
-                  color="primary"
-                  variant="text"
-                  onClick={handleEdit}
-                >
-                  Edit
+                <div>
+
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    onClick={handleEdit}
+                  >
+                    Edit
                 </Button>
+                  <Button
+                    color="primary"
+                    variant="text"
+                    onClick={handleClone}
+                  >
+                    Clone
+                </Button>
+                </div>
 
               </div>
               <div className={classes.contentBody}>
@@ -242,7 +257,7 @@ let WorkoutSessionDetail = (props) => {
                         className={classes.title}
                         variant="h3"
                       >
-                        Session {values.title}
+                        {values.title}
                       </Typography>
                       <Divider className={classes.divider} />
 

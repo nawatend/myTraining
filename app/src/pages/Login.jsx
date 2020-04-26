@@ -109,7 +109,9 @@ let LoginPage = () => {
                 <div className="login">
                     <div className="login__icon">
                         <img src={`${process.env.PUBLIC_URL}/svgs/start_logo.svg`} alt="" srcSet="" />
+
                     </div>
+                    
                     <form className={classes.root} noValidate autoComplete="off">
                         <TextField
                             //error={values.email === '' || values.error ? true : false}
@@ -145,9 +147,9 @@ let LoginPage = () => {
                         <div className="form__actions">
                             <Grid container justify="space-between" alignItems="center" spacing={2}>
                                 <Grid item sm={6}>
-                                    <Link to="/">
+                                    {/* <Link to="/">
                                         Forgot Your Password?
-                        </Link>
+                        </Link> */}
                                 </Grid>
                                 <Grid item sm={6}>
                                     <Button

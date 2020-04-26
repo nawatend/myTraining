@@ -10,7 +10,7 @@ import {
   Avatar,
   LinearProgress
 } from '@material-ui/core';
-import InsertChartIcon from '@material-ui/icons/InsertChartOutlined';
+import RecentActors from '@material-ui/icons/RecentActors';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const TasksProgress = props => {
+const TotalWorkoutProgram = props => {
   const { className, ...rest } = props;
 
   const classes = useStyles();
@@ -60,28 +60,34 @@ const TasksProgress = props => {
               gutterBottom
               variant="body2"
             >
-              TASKS PROGRESS
+              WORKOUT PROGRAMS
             </Typography>
-            <Typography variant="h3">75.5%</Typography>
+            <Typography variant="h3"> {props.total}</Typography>
           </Grid>
           <Grid item>
             <Avatar className={classes.avatar}>
-              <InsertChartIcon className={classes.icon} />
+              <RecentActors className={classes.icon} />
             </Avatar>
           </Grid>
         </Grid>
-        <LinearProgress
+        {/* <LinearProgress
           className={classes.progress}
           value={75.5}
           variant="determinate"
-        />
+        /> */}
+         <Typography
+            className={classes.caption}
+            variant="caption"
+          >
+           Add more workout programs
+          </Typography>
       </CardContent>
     </Card>
   );
 };
 
-TasksProgress.propTypes = {
+TotalWorkoutProgram.propTypes = {
   className: PropTypes.string
 };
 
-export default TasksProgress;
+export default TotalWorkoutProgram;

@@ -1,22 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Link as RouterLink, withRouter } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import validate from 'validate.js';
-import { makeStyles } from '@material-ui/styles';
-import {
-  Grid,
-  Button,
-  IconButton,
-  TextField,
-  Link,
-  FormHelperText,
-  Checkbox,
-  Typography
-} from '@material-ui/core';
+import { Button, Checkbox, FormHelperText, Grid, IconButton, Link, TextField, Typography } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-
+import { makeStyles } from '@material-ui/styles';
+import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
+import { Link as RouterLink, withRouter } from 'react-router-dom';
+import validate from 'validate.js';
 //api services
-import { UserService } from '../../services/api'
+import { UserService } from '../../services/api';
+
 
 const schema = {
   fullName: {
@@ -204,7 +195,7 @@ const SignUp = props => {
       role: 'trainer',
       age: 34,
       gender: 'male',
-      imageName: 'test.jpg',
+      imageName: 'images/trainer_lrbomm',
       password: formState.values.password,
       focus: formState.values.focus,
       description: formState.values.description,
@@ -245,21 +236,20 @@ const SignUp = props => {
                 className={classes.quoteText}
                 variant="h1"
               >
-                Hella narwhal Cosby sweater McSweeney's, salvia kitsch before
-                they sold out High Life.
+                IT'S NOT SUPPOSE TO BE EASY
               </Typography>
               <div className={classes.person}>
                 <Typography
                   className={classes.name}
                   variant="body1"
                 >
-                  Takamaru Ayako
+                  Nawang Tendar
                 </Typography>
                 <Typography
                   className={classes.bio}
                   variant="body2"
                 >
-                  Manager at inVision
+                  Idea Factory Label
                 </Typography>
               </div>
             </div>

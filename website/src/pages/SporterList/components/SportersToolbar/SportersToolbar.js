@@ -1,10 +1,10 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import clsx from 'clsx'
+import { Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import { Button, Typography } from '@material-ui/core'
-
+import clsx from 'clsx'
 import { SearchInput } from 'components'
+import PropTypes from 'prop-types'
+import React from 'react'
+
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -59,7 +59,8 @@ const UsersToolbar = props => {
       <div className={classes.row}>
         <SearchInput
           className={classes.searchInput}
-          placeholder="Search user"
+          placeholder="Search user name or id"
+          onChange={props.searchBarOnChange}
         />
       </div>
     </div>

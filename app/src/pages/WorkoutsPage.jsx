@@ -58,6 +58,10 @@ let WorkoutsPage = () => {
                     return <WorkoutCard key={id} workoutSession={workoutSession} />
                 })
                 }
+                {workoutProgramId === null &&
+                
+                    "You are not assigned to any workout program!"
+                }
             </HorizontalContainer>
 
             <SubTitle text="Free workout programs" />

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import { Card, CardContent, Grid, Typography, Avatar } from '@material-ui/core';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import MoneyIcon from '@material-ui/icons/Money';
+import {DirectionsRun} from '@material-ui/icons';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -40,7 +40,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Budget = props => {
+const TotalExercise = props => {
   const { className, ...rest } = props;
 
   const classes = useStyles();
@@ -62,29 +62,29 @@ const Budget = props => {
               gutterBottom
               variant="body2"
             >
-              BUDGET
+              EXERCISES
             </Typography>
-            <Typography variant="h3">$24,000</Typography>
+            <Typography variant="h3"> {props.total}</Typography>
           </Grid>
           <Grid item>
             <Avatar className={classes.avatar}>
-              <MoneyIcon className={classes.icon} />
+              <DirectionsRun className={classes.icon} />
             </Avatar>
           </Grid>
         </Grid>
         <div className={classes.difference}>
-          <ArrowDownwardIcon className={classes.differenceIcon} />
-          <Typography
+          
+          {/* <Typography
             className={classes.differenceValue}
             variant="body2"
           >
             12%
-          </Typography>
+          </Typography> */}
           <Typography
             className={classes.caption}
             variant="caption"
           >
-            Since last month
+            Add more exercises
           </Typography>
         </div>
       </CardContent>
@@ -92,8 +92,8 @@ const Budget = props => {
   );
 };
 
-Budget.propTypes = {
+TotalExercise.propTypes = {
   className: PropTypes.string
 };
 
-export default Budget;
+export default TotalExercise;

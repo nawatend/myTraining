@@ -1,22 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import clsx from 'clsx';
-import moment from 'moment';
+import { Button, Grid, LinearProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import {
-  Grid,
-  Card,
-  CardActions,
-  CardContent,
-  Avatar,
-  Typography,
-  Divider,
-  Button,
-  LinearProgress
-} from '@material-ui/core';
-
-import { fetchPhotos, openUploadWidget } from "../../services/cloudinary";
 import { CloudinaryContext, Image } from "cloudinary-react";
+import React, { useEffect, useState } from 'react';
+import { openUploadWidget } from "../../services/cloudinary";
+
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -80,13 +67,13 @@ let ImageUpload = (props) => {
 
     openUploadWidget(uploadOptions, (error, photos) => {
       if (!error) {
-        console.log(photos);
+        //console.log(photos);
         if (photos.event === 'success') {
           props.onChange(photos.info.public_id)
           setImage(photos.info.public_id)
         }
       } else {
-        console.log(error);
+        //console.log(error);
       }
     })
   }
@@ -115,24 +102,28 @@ let ImageUpload = (props) => {
           </label>
         </Grid>
         {/* show preview */}
-        <Grid
-          item
-          md={12}
-          xs={12}
-        >
-          <CloudinaryContext cloudName="filesmytraining">
-            {image !== undefined &&
-              <Image
-                className={classes.image}
-                key={image}
-                publicId={image}
-                fetch-format="auto"
-                quality="auto"
-              />
-            }
 
-          </CloudinaryContext>
-        </Grid>
+        {!props.simple &&
+
+          <Grid
+            item
+            md={12}
+            xs={12}
+          >
+            <CloudinaryContext cloudName="filesmytraining">
+              {image !== undefined &&
+                <Image
+                  className={classes.image}
+                  key={image}
+                  publicId={image}
+                  fetch-format="auto"
+                  quality="auto"
+                />
+              }
+
+            </CloudinaryContext>
+          </Grid>
+        }
       </Grid>
     </div>
   )

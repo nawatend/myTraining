@@ -1,19 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import { Avatar, Button, Card, CardActions, CardContent, Divider, LinearProgress, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
+import { CloudinaryContext, Image } from "cloudinary-react";
 import clsx from 'clsx';
 import moment from 'moment';
-import { makeStyles } from '@material-ui/styles';
-import {
-  Card,
-  CardActions,
-  CardContent,
-  Avatar,
-  Typography,
-  Divider,
-  Button,
-  LinearProgress
-} from '@material-ui/core';
-import { CloudinaryContext, Image } from "cloudinary-react";
+import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
+
+import ImageUpload from '../../../../components/UploadFiles/ImageUpload';
+
+//api
+import { TrainerService } from '../../../../services/api';
+//jwt authen
+import { getTrainerIdFromJWT } from '../../../../utils/jwt';
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -44,6 +42,8 @@ const AccountProfile = props => {
 
   const classes = useStyles();
 
+  const [trainer, setTrainer] = useState({ user: {} })
+  
   const user = {
     name: 'Shen Zhi',
     city: 'Los Angeles',
@@ -51,6 +51,18 @@ const AccountProfile = props => {
     timezone: 'GTM-7',
     avatar: '/images/avatars/avatar_11.png'
   };
+
+
+  useEffect(() => {
+
+    TrainerService.getTrainerByUserId(getTrainerIdFromJWT())
+      .then((res) => {
+        setTrainer({ ...res })
+      }).catch((e) => console.log('trainer not found'))
+
+  }, [])
+
+  
 
   return (
     <Card
@@ -64,21 +76,21 @@ const AccountProfile = props => {
               gutterBottom
               variant="h2"
             >
-              John Doe
+              {trainer.user.fullName}
             </Typography>
             <Typography
               className={classes.locationText}
               color="textSecondary"
               variant="body1"
             >
-              {user.city}, {user.country}
+              {trainer.focus}
             </Typography>
             <Typography
               className={classes.dateText}
               color="textSecondary"
               variant="body1"
             >
-              {moment().format('hh:mm A')} ({user.timezone})
+              Joined {moment(trainer.user.createdAt).format('DD/MM/YYYY')}
             </Typography>
           </div>
           <Avatar
@@ -89,31 +101,18 @@ const AccountProfile = props => {
               <Image
                 className={classes.profileImage}
                 alt="WorkoutSession"
-                publicId="images/skr_odh78c"
+                publicId={props.image ? `http://res.cloudinary.com/filesmytraining/image/upload/f_auto,q_auto/v1/${props.image}`: trainer.user.imageName}
                 fetch-format="auto"
                 quality="auto"
               />
             </CloudinaryContext>
           </Avatar>
         </div>
-        <div className={classes.progress}>
-          <Typography variant="body1">Profile Completeness: 70%</Typography>
-          <LinearProgress
-            value={70}
-            variant="determinate"
-          />
-        </div>
       </CardContent>
       <Divider />
       <CardActions>
-        <Button
-          className={classes.uploadButton}
-          color="primary"
-          variant="text"
-        >
-          Upload picture
-        </Button>
-        <Button variant="text">Remove picture</Button>
+        <ImageUpload simple={true} onChange={props.handleImage} image={props.image} />
+
       </CardActions>
     </Card>
   );

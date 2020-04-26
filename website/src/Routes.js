@@ -11,6 +11,9 @@ import {
   WorkoutSessionList as WorkoutSessionListView,
   WorkoutSessionDetail as WorkoutSessionDetailView,
 
+  FeedbackList as FeedbackListView,
+
+
   SporterDetail as SporterDetailView,
   SporterList as SporterListView,
   SporterListByTrainer as SporterListByTrainerView,
@@ -33,6 +36,7 @@ import {
 
 const Routes = () => {
   return (
+
     <Switch>
       <Redirect
         exact
@@ -64,7 +68,7 @@ const Routes = () => {
         path="/invite/sporters"
       />
       <RouteWithLayout
-        component={SporterListView}
+        component={FeedbackListView}
         exact
         layout={MainLayout}
         path="/feedbacks"

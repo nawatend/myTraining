@@ -1,27 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Link as RouterLink, withRouter, useHistory, Redirect, useParams } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import validate from 'validate.js';
-import { makeStyles } from '@material-ui/styles';
-import {
-    Grid,
-    Button,
-    IconButton,
-    TextField,
-    Link,
-    FormHelperText,
-    Checkbox,
-    Typography
-} from '@material-ui/core';
+import { Button, Grid, IconButton, TextField, Typography } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import ImageUpload from '../../components/UploadFiles/ImageUpload'
-import VideoUpload from '../../components/UploadFiles/VideoUpload'
-
+import { makeStyles } from '@material-ui/styles';
+import React, { useEffect, useState } from 'react';
+import { Redirect, useParams, withRouter } from 'react-router-dom';
+import validate from 'validate.js';
+import ImageUpload from '../../components/UploadFiles/ImageUpload';
+import VideoUpload from '../../components/UploadFiles/VideoUpload';
 //api
-import { ExerciseBaseService, TrainerService } from '../../services/api'
-
+import { ExerciseBaseService, TrainerService } from '../../services/api';
 //jwt authen
-import { isJWTValid, getTrainerIdFromJWT } from '../../utils/jwt'
+import { getTrainerIdFromJWT, isJWTValid } from '../../utils/jwt';
+
+
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -252,7 +242,7 @@ let ExerciseEdit = (props) => {
                             }, trainerId: res.trainer.id
                         })
                         setLoading(false)
-                        console.log(res)
+                       // console.log(res)
                     }).catch(error => {
                         console.log(error)
                         history.push('/exercises')
@@ -265,7 +255,7 @@ let ExerciseEdit = (props) => {
         if (isAuth) {
             TrainerService.getTrainerByUserId(getTrainerIdFromJWT())
                 .then((res) => {
-                    console.log(res)
+                   // console.log(res)
                     setValues(values => ({
                         ...values,
                         trainerId: res.id
@@ -317,7 +307,7 @@ let ExerciseEdit = (props) => {
         //ExerciseService
         ExerciseBaseService.createExerciseBase(values)
             .then((res) => {
-                console.log(res)
+                //console.log(res)
                 history.push("/exercises")
             }).catch((e) => console.log('failed saved'))
 
@@ -368,13 +358,13 @@ let ExerciseEdit = (props) => {
                                         className={classes.title}
                                         variant="h2"
                                     >
-                                        Create new exercise
+                                         {id !== undefined ? " Edit Exercise" : " Create New Exercise"}
                             </Typography>
                                     <Typography
                                         color="textSecondary"
                                         gutterBottom
                                     >
-                                        Fill detail of new exercise
+                                        Fill detail of exercise
                             </Typography>
                                     <TextField
                                         className={classes.textField}

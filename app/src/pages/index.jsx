@@ -10,18 +10,18 @@ import { Paper, List } from '@material-ui/core'
 import Timer from '../components/Timer'
 import Bars from '../components/Bars'
 import { Title, SubTitle } from '../components/texts'
-import { withRouter } from 'react-router-dom';
+import { withRouter, useHistory, Redirect } from 'react-router-dom';
 //api
 import { SporterService, WorkoutSessionService } from '../api'
 import { getUserIdFromJWT } from '../utils/jwt'
 
 let HomePage = (props) => {
 
-
+    const history = useHistory()
     const [sporter, setSporter] = useState()
     const [values, setValues] = useState({})
     const [workoutSessions, setWorkoutSessions] = useState([])
-    const [workoutProgramId, setWorkoutProgramId] = useState(null)
+    const [workoutProgramId, setWorkoutProgramId] = useState()
     const [finishedWSs, setFinishedWSs] = useState([])
     const [unfinishedWSs, setUnfinishedWSs] = useState([])
     const [reset, setReset] = useState(false)
@@ -30,7 +30,12 @@ let HomePage = (props) => {
         SporterService.getSporterByUserId(getUserIdFromJWT())
             .then((res) => {
                 console.log(res)
-                setWorkoutProgramId(res.workoutProgram.id)
+                if (res.workoutProgram !== null) {
+
+                    setWorkoutProgramId(res.workoutProgram.id)
+                } else {
+                    setWorkoutProgramId(null)
+                }
             }).catch((e) => console.log('sporter not found'))
     }, [values])
 
@@ -71,41 +76,48 @@ let HomePage = (props) => {
 
     }
 
-    return (
-        <div className="home">
+    if (workoutProgramId === null) {
 
-            <SubTitle text="Choose today's session" />
+        return <Redirect to="/workouts" />
+    } else {
 
-            {(unfinishedWSs.length === 0) ? (
 
-                <div className="reset">
-                    <div className="reset__text"> You have all done, please reset
+        return (
+            <div className="home">
+
+                <SubTitle text="Choose today's session" />
+
+                {(unfinishedWSs.length === 0 && workoutProgramId !== null) ? (
+
+                    <div className="reset">
+                        <div className="reset__text"> You have all done, please reset
                         </div>
-                    <Button onClick={() => { resetWSs() }} text="RESET" />
-                </div>
-            )
-                :
-                (
-                    <HorizontalContainer>
-                        {unfinishedWSs.map((workoutSession, id) => {
-                            return <WorkoutCard key={id} workoutSession={workoutSession} />
-                        })}
-                    </HorizontalContainer>
+                        <Button onClick={() => { resetWSs() }} text="RESET" />
+                    </div>
                 )
-            }
-
-
-
-
-            <SubTitle text="Completed sessions" />
-            <HorizontalContainer>
-                {finishedWSs.map((workoutSession, id) => {
-                    return <WorkoutCard key={id} workoutSession={workoutSession} />
-                })
+                    :
+                    (
+                        <HorizontalContainer>
+                            {unfinishedWSs.map((workoutSession, id) => {
+                                return <WorkoutCard key={id} workoutSession={workoutSession} />
+                            })}
+                        </HorizontalContainer>
+                    )
                 }
-            </HorizontalContainer>
-        </div>
-    )
+
+
+
+
+                <SubTitle text="Completed sessions" />
+                <HorizontalContainer>
+                    {finishedWSs.map((workoutSession, id) => {
+                        return <WorkoutCard key={id} workoutSession={workoutSession} />
+                    })
+                    }
+                </HorizontalContainer>
+            </div>
+        )
+    }
 
 }
 

@@ -1,28 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Link as RouterLink, withRouter, useParams } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import validate from 'validate.js';
-import { makeStyles } from '@material-ui/styles';
-import {
-    Grid,
-    Button,
-    IconButton,
-    TextField,
-    Link,
-    FormHelperText,
-    Checkbox,
-    Typography
-} from '@material-ui/core';
+import { Button, Grid, IconButton, TextField, Typography } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import ImageUpload from '../../components/UploadFiles/ImageUpload'
-import VideoUpload from '../../components/UploadFiles/VideoUpload'
-import AddWorkoutSessionList from './components/AddWorkoutSessionList'
+import { makeStyles } from '@material-ui/styles';
+import React, { useEffect, useState } from 'react';
+import { useParams, withRouter } from 'react-router-dom';
+import validate from 'validate.js';
 //import MaterialTable from 'material-table';
 //api
-import { WorkoutProgramService, WorkoutSessionService, TrainerService } from '../../services/api'
-
+import { TrainerService, WorkoutProgramService, WorkoutSessionService } from '../../services/api';
 //jwt authen
-import { isJWTValid, getTrainerIdFromJWT } from '../../utils/jwt'
+import { getTrainerIdFromJWT } from '../../utils/jwt';
+import AddWorkoutSessionList from './components/AddWorkoutSessionList';
+
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -291,7 +279,7 @@ let WorkoutProgramEdit = (props) => {
 
     useEffect(() => {
         if (loading) {
-            WorkoutSessionService.getWorkoutSessionsByAvailable()
+            WorkoutSessionService.getWorkoutSessionsByTrainer(values.trainerId)
                 .then((res) => {
                     console.log(res)
                     setWorkoutSessions([{ title: '', id: '' }, ...res])
@@ -468,13 +456,13 @@ let WorkoutProgramEdit = (props) => {
                                     className={classes.title}
                                     variant="h2"
                                 >
-                                    Create New Workout Program
+                                    {id !== undefined ? " Edit Workout Program" : " Create New Workout Program"}
                             </Typography>
                                 <Typography
                                     color="textSecondary"
                                     gutterBottom
                                 >
-                                    Fill detail of new workout program
+                                    Fill detail of workout program
                             </Typography>
                                 <TextField
                                     className={classes.textField}
@@ -587,7 +575,7 @@ let WorkoutProgramEdit = (props) => {
                                     type="submit"
                                     variant="contained"
                                 >
-                                    SAVE Workout Session
+                                    SAVE Workout Program
                     </Button>
                                 {id !== undefined &&
                                     <Button

@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react'
 import { makeStyles } from '@material-ui/styles'
-
-import { ExercisesToolbar, ExercisesTable } from './components'
-import mockData from './data'
+import React, { useEffect, useState } from 'react'
 //api
 import { ExerciseBaseService, TrainerService } from '../../services/api'
+import { filterArrayObjectByTwoKeys } from '../../utils/filter'
 //jwt authen
-import { isJWTValid, getTrainerIdFromJWT } from '../../utils/jwt'
-import {filterArrayObjectByTwoKeys} from '../../utils/filter'
+import { getTrainerIdFromJWT } from '../../utils/jwt'
+import { ExercisesTable, ExercisesToolbar } from './components'
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -30,7 +29,7 @@ const ExerciseList = () => {
 
     TrainerService.getTrainerByUserId(getTrainerIdFromJWT())
       .then((res) => {
-        console.log(res)
+        //console.log(res)
         setTrainerId(res.id)
       }).catch((e) => console.log('trainer not found'))
 
@@ -40,7 +39,7 @@ const ExerciseList = () => {
     if (trainerId !== null) {
       ExerciseBaseService.getExerciseBasesByTrainer(trainerId)
         .then((res) => {
-          console.log(res)
+         // console.log(res)
           setExercises(res)
         }).catch((e) => console.log('exercises not found'))
     }

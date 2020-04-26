@@ -59,6 +59,11 @@ class SporterService {
 		return axiosInstance.post(`/sporters/update`, body)
 	}
 
+	static async removeTrainer(body) {
+
+		return axiosInstance.post(`/sporters/trainer/remove`, body)
+	}
+
 	// static async updateSporter(id, body) {
 	//     return axiosInstance.put(`sporters/${id}`, body)
 	// } 

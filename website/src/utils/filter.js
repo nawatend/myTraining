@@ -49,7 +49,7 @@ const filterArrayObjectByTwoKeys = (objectsArray, searchTerm, key, key2 = '') =>
 				}
 			} else {
 				if (object[child][finalKey] !== undefined) {
-					console.log(object[child][finalKey])
+					//console.log(object[child][finalKey])
 					return (object[child][finalKey].toString().toLowerCase().search(searchTerm.toLowerCase()) !== -1) ? true : false
 				}
 			}
@@ -69,23 +69,9 @@ const filterArrayObjectByTwoKeys = (objectsArray, searchTerm, key, key2 = '') =>
 
 		}
 
-
-
-
-
-
 	})
 
-
-
-
-
-
-
-
-
-
-	console.log("filtered:", filteredArray)
+//	console.log("filtered:", filteredArray)
 	return filteredArray
 }
 

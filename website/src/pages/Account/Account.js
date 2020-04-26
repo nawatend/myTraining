@@ -1,8 +1,8 @@
-import React from 'react';
-import { makeStyles } from '@material-ui/styles';
 import { Grid } from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
+import React, { useState, useEffect } from 'react';
+import { AccountDetails, AccountProfile } from './components';
 
-import { AccountProfile, AccountDetails } from './components';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -10,8 +10,16 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+
+
 const Account = () => {
   const classes = useStyles();
+
+  const [imageName, setImageName] = useState()
+  const handleImage = (publicId) => {
+
+    setImageName(publicId)
+  }
 
   return (
     <div className={classes.root}>
@@ -26,7 +34,7 @@ const Account = () => {
           xl={4}
           xs={12}
         >
-          <AccountProfile />
+          <AccountProfile image={imageName} handleImage={handleImage} />
         </Grid>
         <Grid
           item
@@ -35,7 +43,7 @@ const Account = () => {
           xl={8}
           xs={12}
         >
-          <AccountDetails />
+          <AccountDetails image={imageName} />
         </Grid>
       </Grid>
     </div>

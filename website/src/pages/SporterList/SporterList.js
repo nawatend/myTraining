@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react'
 import { makeStyles } from '@material-ui/styles'
-
-import { SportersToolbar, SportersTable } from './components'
-import mockData from './data'
-
+import React, { useEffect, useState } from 'react'
 //api
 import { SporterService, TrainerService } from '../../services/api'
+import { filterArrayObjectByTwoKeys } from '../../utils/filter'
+
 //jwt authen
-import { isJWTValid, getTrainerIdFromJWT } from '../../utils/jwt'
+import { getTrainerIdFromJWT } from '../../utils/jwt'
+import { SportersTable, SportersToolbar } from './components'
+
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -22,6 +23,9 @@ const SporterList = () => {
   const classes = useStyles()
 
   const [sporters, setSporters] = useState([])
+  const [filteredSporters, setFilteredSporters] = useState([])
+  const [searchTerm, setSearchTerm] = useState()
+
   const [inviteTimes, setInviteTimes] = useState(0)
   //const [sporters] = useState(mockData)
   const [trainerId, setTrainerId] = useState(null)
@@ -29,7 +33,7 @@ const SporterList = () => {
 
     TrainerService.getTrainerByUserId(getTrainerIdFromJWT())
       .then((res) => {
-        console.log(res)
+        //console.log(res)
         setTrainerId(res.id)
       }).catch((e) => console.log('trainer not found'))
 
@@ -39,11 +43,30 @@ const SporterList = () => {
 
     SporterService.getSporters()
       .then((res) => {
-        console.log(res)
+        //console.log(res)
         setSporters(res)
       }).catch((e) => console.log('sporters not found'))
 
   }, [inviteTimes])
+
+  useEffect(() => {
+    setFilteredSporters(sporters)
+  }, [sporters])
+
+  useEffect(() => {
+
+    let filteredArray = filterArrayObjectByTwoKeys([...sporters], searchTerm, "user.fullName", "id")
+    if (filteredArray.length >= 0) {
+      setFilteredSporters(filteredArray)
+    }
+  }, [searchTerm])
+
+  const searchBarOnChange = (e) => {
+    e.preventDefault()
+    setSearchTerm(e.target.value)
+  }
+  
+
 
   const changeInvite = () =>{
     
@@ -52,9 +75,9 @@ const SporterList = () => {
 
   return (
     <div className={classes.root}>
-      <SportersToolbar />
+      <SportersToolbar searchBarOnChange={searchBarOnChange}  />
       <div className={classes.content}>
-        <SportersTable trainerId={trainerId} sporters={sporters} onChange={changeInvite} />
+        <SportersTable trainerId={trainerId} sporters={filteredSporters} onChange={changeInvite} />
       </div>
     </div>
   )
